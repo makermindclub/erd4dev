@@ -1,9 +1,12 @@
 <?php
 
-// Development application: keep the existing database and URLs.
-// Never publish this demo configuration to a production host application.
+use Makermind\Erd4dev\Http\Middleware\AuthorizeErd;
+
 return [
-    'middleware' => ['web'],
-    'table' => 'diagrams',
-    'development_assets' => env('ERD_DEVELOPMENT_ASSETS', true),
+    'domain' => null,
+    // Define Gate::define('erd.access', ...) in the host application.
+    // This is a shared administrative workspace, not per-user storage.
+    'middleware' => ['web', AuthorizeErd::class],
+    'table' => 'erd_diagrams',
+    'development_assets' => false,
 ];

@@ -1,85 +1,104 @@
-# ERD4Dev development application
+# ERD4Dev
 
-Laravel 12, Livewire 4, Alpine and WireFlow application for drawing ER diagrams, converting them to relational models, importing SQL/database schemas, and exporting SQL or Laravel Blueprint drafts.
+ER and relational diagram editor for Laravel, with JSON/SQL import, database schema snapshots, ER-to-relational conversion, SQL export and Laravel Blueprint drafts.
 
-The distributable package is in [`packages/laravel-erd`](packages/laravel-erd/README.md). The root application consumes `makermind/erd4dev` through a Composer path repository and preserves the development database and routes.
+Requires PHP 8.3+, Laravel 12 and Livewire 4.3+. Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
 
-## Run
+Developed by Professor Giovani's study group. This is an independent project, with no institutional affiliation to IFRN. Distributed under the MIT license; see `LICENSE` and third-party notices in `licenses/`.
+
+## Installation
+
+The package is not published on Packagist yet. To install locally, add a Composer path repository pointing to this directory:
+
+```json
+{
+    "repositories": [
+        {"type": "path", "url": "/path/to/erd4dev"}
+    ]
+}
+```
+
+WireFlow currently requires explicit acceptance of its alpha release. The project does not need to lower its global minimum stability:
 
 ```bash
-docker compose up
+composer require --dev makermind/erd4dev:@dev getartisanflow/wireflow:^0.1.2@alpha
 ```
 
-Open `http://localhost:8000/erd`. The PHP container installs dependencies and runs migrations on its first start; the Vite container supplies development assets. Source changes are mounted into both containers.
+Open `/erd` at the address and port already used by your application (for example, `http://localhost:8000/erd`). The package is discovered by Laravel automatically. No additional server, restart, Vite, asset publication or installation command is needed for normal local use.
 
-For access from another machine, set `DEV_HOST` in `.env` to the Docker server IP/hostname, without a protocol or port:
+With `APP_ENV=local`, access does not require login and the package creates its diagram storage table on the first ERD request if it does not exist. It uses the application's configured database; that database must already exist and be reachable. No application migrations are run automatically. All package routes, including compiled assets, examples and panel updates, live under `/erd`.
 
-```dotenv
-DEV_HOST=192.168.88.245
+`erd:install` remains an optional command to publish compiled assets and the package migration. Its `--migrate` flag runs **all pending application migrations**. Outside the local environment, publish and run the migration explicitly. Existing route caches must be regenerated after installing a package; persistent application workers need to load the new code as usual.
+
+After publication, a stable ERD4Dev release will still require explicitly accepting the WireFlow alpha dependency until an upstream stable version is adopted.
+
+## Access through the application server
+
+Outside `APP_ENV=local`, the application must grant the `erd.access` Gate:
+
+```php
+use Illuminate\Support\Facades\Gate;
+
+Gate::define('erd.access', fn ($user) => $user->can('manage-diagrams'));
 ```
+
+The permission in this example must be implemented by the host application. Authorization is checked again on Livewire updates. The package does not supply user registration or authentication.
 
 ```bash
-docker compose up -d --force-recreate vite
+php artisan vendor:publish --tag=erd-config
 ```
 
-Ports 8000 and 5173 must be reachable by the browser. Inspect `docker compose logs app` and `docker compose logs vite` when troubleshooting.
+Configuration controls the domain, middleware and storage table. The `/erd` prefix is fixed to avoid occupying the application root or its other routes. Routes use `erd.` names and views use `erd::`. The default storage table is `erd_diagrams`. Diagrams form a shared workspace without per-user or tenant isolation.
 
-Without Docker, use PHP 8.3+, Composer and Node 22. Install dependencies, configure `.env`, run `php artisan migrate`, then `composer run dev`.
+## Modeling and importing
 
-## Pages and workflows
+Start with an ER model and generate a linked relational model, or import SQL/database metadata directly into an independent editable relational board. Structural changes to linked models belong in the ER source.
 
-| Route | Purpose |
-| --- | --- |
-| `/erd` | Project dashboard: create, import, rename and open diagrams. |
-| `/erd/schema` | ER editor demonstration. |
-| `/erd/boards/er/{diagram}` | Saved ER diagram. |
-| `/erd/boards/relational/{diagram}` | Linked or independently imported relational model. |
-| `/health`, `/up` | Application health checks. |
+SQL is parsed as text and never executed. Database import reads schema metadata from connections configured in `config/database.php`; passwords are not entered in the browser. Supported native drivers are SQLite, MySQL/MariaDB, PostgreSQL and SQL Server, with a 250-table limit. SQLite has been tested against a real database; the remaining drivers still require live-server validation. Oracle is supported through SQL import, not connection import.
 
-ER projects can generate linked relational models. Structural editing remains in the ER source; regeneration is an explicit action that can replace manual relational adjustments. Drift detection reports changes without automatically overwriting a saved model.
+Snapshots contain tables, columns, primary/unique keys and foreign keys. Data, defaults, checks, views, routines, ordinary indexes, collations and referential actions are outside the diagram representation. Unsupported structures are reported. Editing a snapshot changes only the saved diagram, never the source tables or records. Diagram records themselves use the host application's configured storage database.
 
-SQL and database imports create independent relational boards without an ER model. SQL is parsed as text, never executed. Connection import reads metadata only from connections configured by the user in Laravel. Board edits do not modify source tables or records; diagram records themselves are saved in the application's configured diagram table.
+On imported boards, **New table** creates a table with an id primary key. Rename tables and columns, add/remove columns, and set PK/UNIQUE keys directly on the canvas. Column types, sizes, enums and nullability are editable in their rows. Enum values retain embedded commas, spaces, empty strings and zero values.
 
-On imported boards, create tables with **New table**, edit table/column names and keys directly on the canvas, and configure foreign keys through **Relationships**. Cardinality follows uniqueness and nullability. Composite and recursive references are supported by the board.
+**Relationships** links FK columns, including composite and recursive references. Cardinality follows uniqueness and nullability: a unique source key produces 1:1, otherwise N:1; nullable columns allow optional references. Changes that invalidate referenced keys are rejected.
 
-**More** contains SQL, image, JSON and Blueprint exports. JSON copying works over HTTP through a clipboard fallback and offers manual selection if the browser blocks it.
+The header places the database selector on the left, model tabs in the center and actions on the right. New table and Relationships are adjacent. Smaller screens keep a single toolbar row and expose secondary actions through **More**. SQL, Blueprint draft and image exports are in More on all screen sizes.
 
-## SQL import limits
-
-Import a schema-only `.sql` file up to 2 MB or paste SQL. Dialect detection recognizes SQLite, MySQL/MariaDB, PostgreSQL, Oracle and SQL Server. Generic SQL may require selecting a dialect.
-
-Tables, columns, types, sizes, nullability, primary/unique keys and foreign keys are represented. Data, views, routines, defaults, checks, automatic generation, collations and ordinary index options are outside the SQL diagram representation. Warnings explain omissions. Expression keys, multiple references on a single column and unsupported ALTER TABLE operations are rejected. Remove unsupported routine bodies and DELIMITER commands before import.
+Public ER examples include only features configurable in the current interface. Readers retain compatibility with legacy diagrams and previously generated SQL headers. Existing user-authored names and saved diagram contents are not translated automatically.
 
 ## Blueprint drafts
 
-**More → Generate Blueprint draft** saves a new versionable YAML file under the consumer project's `blueprints/` directory on every click. Existing files are not overwritten. The result dialog includes review warnings and a command to generate models/migrations with the included Blueprint package. The editor does not run that command or execute migrations automatically.
+Choose **More → Generate Blueprint draft**. Each click saves a new file in the consumer project's root:
 
-Database configuration, review and execution remain the user's responsibility. See the [package documentation](packages/laravel-erd/README.md#blueprint-drafts) for naming, migration and representation limits.
-
-## Code map
-
-| Responsibility | Location |
-| --- | --- |
-| ER editor | `packages/laravel-erd/src/Livewire/SchemaBoard.php` and its Blade view. |
-| Relational editor | `packages/laravel-erd/src/Livewire/RelationalBoard.php`, `Services/RelationalStructureEditor.php`. |
-| ER conversion | `packages/laravel-erd/src/Services/ErToRelationalTransformer.php`. |
-| SQL/database import | `packages/laravel-erd/src/Support/SqlDiagramImporter.php`, `DatabaseDiagramImporter.php`. |
-| SQL/Blueprint export | `packages/laravel-erd/src/Services/RelationalSqlGenerator.php`, `BlueprintDraftGenerator.php`, `BlueprintDraftWriter.php`. |
-| Canvas interactions | `packages/laravel-erd/resources/js/erd/`. |
-| Shared UI | `packages/laravel-erd/resources/views/components/`. |
-
-Livewire owns diagram state. WireFlow receives incremental canvas updates. Public ER examples contain only features configurable in the current interface. Legacy file readers retain compatibility; user-authored names and saved data are not translated automatically.
-
-## Verify and build
-
-```bash
-docker compose exec -T app php artisan test --compact
-docker compose exec -T app vendor/bin/phpunit -c packages/laravel-erd/phpunit.xml.dist
-docker compose exec -T vite npm test
-docker compose exec -T vite npm run build
-docker compose exec -T vite npm run build:package
+```text
+blueprints/draft-{diagram-id}-{YYYYMMDD}-{HHMMSSmicroseconds}.yaml
 ```
 
-The package's compiled `dist/` files are included in distribution. Consumers do not require Vite or Node. Run `php artisan vendor:publish --tag=erd-assets --force` in the development app when refreshing its published assets.
+Exclusive file creation prevents overwrites; collisions receive a suffix. Commit the `blueprints/` directory to version control. Drafts contain the current saved board without credentials or database records.
 
-The root demonstration uses the historical `diagrams` table. Fresh package installations use `erd_diagrams`; migrating historical data requires a separate plan.
+The result appears in a dismissible dialog with collapsed warnings and a copyable command. Reopen it through **More → Last draft** without generating another file. After review:
+
+```bash
+php artisan blueprint:build blueprints/draft-42-20261103-123456123456.yaml --only=models,migrations
+```
+
+The Blueprint package is included. Generating a draft only writes YAML. It does not automatically generate PHP files or run migrations. Database configuration, review and migration execution remain the user's responsibility. Drafts describe full schemas, not migration diffs against existing tables.
+
+Actual table names are preserved in `meta.table`. Missing id/timestamp columns are not implicitly added. Composite PK/UNIQUE keys are represented as indexes. Composite FKs and cross-schema references retain their columns but omit constraints that Blueprint cannot faithfully represent, with explicit warnings. Composite or nonstandard primary keys require reviewing the Eloquent model.
+
+Reserved Blueprint names, incompatible identifiers, unsupported custom types and unrepresentable enums block draft generation with an explanation; partial drafts are not saved.
+
+## Development
+
+This repository contains the standalone Composer package. The Laravel demonstration application and frontend build tooling are maintained in [ERD-laravel-package](https://github.com/arthur-bpv/ERD-laravel-package).
+
+Run package integration tests from this repository root:
+
+```bash
+composer install
+composer test
+```
+
+The package's development configuration accepts alpha dependencies and prefers stable versions. Consuming applications must still explicitly accept the WireFlow alpha release as shown above; dependency stability settings are not inherited.
+
+Include the compiled `dist/erd.js` and `dist/erd.css` in releases; consumers do not need Node.js or a frontend build. Rebuild these assets in the demonstration repository using `npm run build:package` and copy its `packages/laravel-erd/dist/` contents here. License notices are in `licenses/`.
