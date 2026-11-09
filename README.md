@@ -11,23 +11,18 @@ Requires PHP 8.3+, Laravel 12 and Livewire 4.3+. Composer package: `makermind/er
 
 Developed by the organization Makermind. This is an independent project. Distributed under the MIT license; please refer to the `LICENSE` file and third-party notices in `licenses/`.
 
-## Installation
+# Install through Composer
 
-The package is published on Packagist. To install locally, add a Composer path repository pointing to this directory:
+ERD4Dev is available through Packagist.
 
-```json
-{
-    "repositories": [
-        {"type": "path", "url": "/path/to/erd4dev"}
-    ]
-}
-```
-
-WireFlow currently requires explicit acceptance of its alpha release. The project does not need to lower its global minimum stability:
+Install the package and explicitly allow the required WireFlow alpha dependency:
 
 ```bash
 composer require --dev makermind/erd4dev:@dev getartisanflow/wireflow:^0.1.2@alpha
 ```
+
+The `@dev` constraint is intended for development versions of ERD4Dev. When installing a stable release, use the appropriate stable package constraint while continuing to explicitly allow the WireFlow alpha dependency until a stable upstream version is adopted.
+
 
 Open `/erd` at the address and port already used by your application (for example, `http://localhost:8000/erd`). The package is discovered by Laravel automatically. No additional server, restart, Vite, asset publication or installation command is needed for normal local use.
 
