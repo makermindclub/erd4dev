@@ -1,6 +1,7 @@
 # ERD4Dev
-
-![Logo do erd4dev](erd4dev-logo.jpeg)
+<p align="left">
+  <img src="erd4dev-logo.jpeg" alt="Logo do erd4dev" width="375">
+</p>
 
 
 ER and relational diagram editor for Laravel, with JSON/SQL import, database schema snapshots, ER-to-relational conversion, SQL export and Laravel Blueprint drafts.
@@ -95,8 +96,6 @@ Actual table names are preserved in `meta.table`. Missing id/timestamp columns a
 Reserved Blueprint names, incompatible identifiers, unsupported custom types and unrepresentable enums block draft generation with an explanation; partial drafts are not saved.
 
 ## Development
-
-This repository contains the standalone Composer package. The Laravel demonstration application and frontend build tooling are maintained in [ERD-laravel-package](https://github.com/arthur-bpv/ERD-laravel-package).
 
 Run package integration tests from this repository root:
 
