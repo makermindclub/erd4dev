@@ -11,6 +11,7 @@ use Livewire\Livewire;
 use Livewire\LivewireServiceProvider;
 use Makermind\Erd4dev\ErdServiceProvider;
 use Makermind\Erd4dev\Livewire\ProjectDashboard;
+use Makermind\Erd4dev\Livewire\RelationalBoard;
 use Makermind\Erd4dev\Models\Diagram;
 use Orchestra\Testbench\TestCase;
 
@@ -80,6 +81,73 @@ class PackageIntegrationTest extends TestCase
         $this->assertTrue($source->relationalDiagram->is($relational));
         $source->delete();
         $this->assertSame(0, Diagram::count());
+    }
+
+    public function test_json_import_preserves_relational_models_and_supports_export_round_trips(): void
+    {
+        Gate::define('erd.access', fn ($user = null) => true);
+        $json = file_get_contents(__DIR__.'/Fixtures/relational-model.json');
+        $data = json_decode($json, true);
+        unset($data['_comment']);
+
+        Livewire::test(ProjectDashboard::class)
+            ->set('importJson', '{invalid')
+            ->call('importProject')
+            ->set('importJson', $json)
+            ->call('importProject')
+            ->assertSet('importError', '')
+            ->assertRedirect(route('erd.boards.relational', Diagram::sole()));
+
+        $diagram = Diagram::sole();
+        $this->assertSame(Diagram::TYPE_RELATIONAL, $diagram->type);
+        $this->assertNull($diagram->source_diagram_id);
+        $this->assertSame($data, $diagram->data);
+
+        $board = Livewire::test(RelationalBoard::class, ['diagram' => $diagram])
+            ->assertSet('tables', $data['tables'])
+            ->assertSet('foreignKeys', $data['foreignKeys'])
+            ->call('openSqlPreview')
+            ->assertSet('sqlError', null);
+
+        Livewire::test(ProjectDashboard::class)
+            ->set('importJson', $board->instance()->getJsonPreviewProperty())
+            ->call('importProject')
+            ->assertRedirect();
+        $this->assertSame($data, Diagram::latest('id')->first()->data);
+    }
+
+    public function test_invalid_relational_json_does_not_create_diagrams(): void
+    {
+        Gate::define('erd.access', fn ($user = null) => true);
+        $data = json_decode(file_get_contents(__DIR__.'/Fixtures/relational-model.json'), true);
+        $data['foreignKeys'][0]['toTable'] = 'missing';
+        Livewire::test(ProjectDashboard::class)
+            ->set('importJson', json_encode($data))
+            ->call('importProject')
+            ->assertSet('importError', 'A foreign key references a missing table or column.');
+        $this->assertSame(0, Diagram::count());
+
+        $data['tables'][0]['columns'] = 'invalid';
+        Livewire::test(ProjectDashboard::class)
+            ->set('importJson', json_encode($data))
+            ->call('importProject')
+            ->assertNoRedirect();
+        $this->assertSame(0, Diagram::count());
+    }
+
+    public function test_json_import_still_accepts_er_diagrams(): void
+    {
+        Gate::define('erd.access', fn ($user = null) => true);
+        $json = file_get_contents(__DIR__.'/../resources/examples/er-conversion-cases.json');
+
+        Livewire::test(ProjectDashboard::class)
+            ->set('importProjectName', 'Imported ER')
+            ->set('importJson', $json)
+            ->call('importProject')
+            ->assertRedirect(route('erd.boards.er', Diagram::sole()));
+
+        $this->assertSame(Diagram::TYPE_ENTITY_RELATIONSHIP, Diagram::sole()->type);
+        $this->assertCount(40, Diagram::sole()->data['relations']);
     }
 
     public function test_livewire_updates_recheck_access_after_permission_is_revoked(): void

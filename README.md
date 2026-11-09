@@ -52,6 +52,8 @@ Configuration controls the domain, middleware and storage table. The `/erd` pref
 
 ## Modeling and importing
 
+JSON import automatically detects ER diagrams and relational models exported by the editor, preserving their structure and opening the appropriate board. Invalid references are rejected before creating a project. JSON files are limited to 2 MB.
+
 Start with an ER model and generate a linked relational model, or import SQL/database metadata directly into an independent editable relational board. Structural changes to linked models belong in the ER source.
 
 SQL is parsed as text and never executed. Database import reads schema metadata from connections configured in `config/database.php`; passwords are not entered in the browser. Supported native drivers are SQLite, MySQL/MariaDB, PostgreSQL and SQL Server, with a 250-table limit. SQLite has been tested against a real database; the remaining drivers still require live-server validation. Oracle is supported through SQL import, not connection import.
