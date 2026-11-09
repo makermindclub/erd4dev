@@ -1,6 +1,7 @@
 {
     "name": "makermind/erd4dev",
-    "description": "Livewire ER diagram editor, relational conversion and SQL export for Laravel.",
+    "description": "Visual database modeling for Laravel and Livewire, with ER diagrams, relational models, SQL export and Blueprint drafts.",
+    "keywords": ["laravel", "livewire", "erd", "database", "schema", "diagram", "sql", "blueprint"],
     "type": "library",
     "license": "MIT",
     "require": {
@@ -36,8 +37,9 @@
     },
     "authors": [
         {
-            "name": "Professor Giovani's study group — IFRN (independent project)",
-            "role": "Developer"
+            "name": "Makermind",
+            "homepage": "https://github.com/makermindclub",
+            "role": "Maintainer"
         }
     ],
     "homepage": "https://github.com/makermindclub/erd4dev",

@@ -1,21 +1,45 @@
-# ERD4Dev
-<p align="left">
-  <img src="erd4dev-logo.jpeg" alt="Logo do erd4dev" width="375">
+<p align="center">
+  <a href="https://github.com/makermindclub/erd4dev">
+    <img src="https://raw.githubusercontent.com/makermindclub/erd4dev/main/erd4dev-logo.jpeg" alt="ERD4Dev — database modeling for Laravel" width="200" height="200">
+  </a>
 </p>
 
+# ERD4Dev
 
-ER and relational diagram editor for Laravel, with JSON/SQL import, database schema snapshots, ER-to-relational conversion, SQL export and Laravel Blueprint drafts.
+[![Packagist: makermind/erd4dev](https://img.shields.io/badge/Packagist-makermind%2Ferd4dev-F28D1A?style=flat-square)](https://packagist.org/packages/makermind/erd4dev)
+[![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=flat-square)](https://www.php.net/)
+[![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=flat-square)](https://laravel.com/)
+[![Livewire](https://img.shields.io/badge/Livewire-4.3%2B-FB70A9?style=flat-square)](https://livewire.laravel.com/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/makermindclub/erd4dev/blob/main/LICENSE)
 
-Requires PHP 8.3+, Laravel 12 and Livewire 4.3+. Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
+Visual database modeling for [Laravel](https://laravel.com/), built with [Livewire](https://livewire.laravel.com/). Design entity-relationship diagrams, convert them into relational models, and export SQL or Laravel Blueprint drafts directly from your application.
 
+Maintained by [Makermind](https://github.com/makermindclub).
 
-Developed by the organization Makermind. This is an independent project. Distributed under the MIT license; please refer to the `LICENSE` file and third-party notices in `licenses/`.
+[Installation](#installation) · [Access control](#access-through-the-application-server) · [Modeling and importing](#modeling-and-importing) · [Blueprint drafts](#blueprint-drafts)
 
-# Install through Composer
+## Features
 
-ERD4Dev is available through Packagist.
+- Design ER diagrams and generate linked relational models.
+- Import and export diagram JSON, import SQL, or read database schema metadata.
+- Edit tables, columns, keys and relationships on a visual canvas.
+- Export SQL, diagram images and drafts for [Laravel Blueprint](https://github.com/laravel-shift/blueprint).
+- Use Laravel authorization and your application's configured database connections.
+- Get started with bundled assets and automatic Laravel package discovery.
 
-Install the package and explicitly allow the required WireFlow alpha dependency:
+## Requirements
+
+| Dependency | Version |
+| --- | --- |
+| PHP | 8.3+ |
+| Laravel | 12.x |
+| Livewire | 4.3+ within 4.x |
+
+Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
+
+## Installation
+
+Install from [Packagist](https://packagist.org/packages/makermind/erd4dev) in your Laravel application. Explicitly allow the required WireFlow alpha dependency:
 
 ```bash
 composer require --dev makermind/erd4dev:@dev getartisanflow/wireflow:^0.1.2@alpha
@@ -23,14 +47,11 @@ composer require --dev makermind/erd4dev:@dev getartisanflow/wireflow:^0.1.2@alp
 
 The `@dev` constraint is intended for development versions of ERD4Dev. When installing a stable release, use the appropriate stable package constraint while continuing to explicitly allow the WireFlow alpha dependency until a stable upstream version is adopted.
 
-
 Open `/erd` at the address and port already used by your application (for example, `http://localhost:8000/erd`). The package is discovered by Laravel automatically. No additional server, restart, Vite, asset publication or installation command is needed for normal local use.
 
 With `APP_ENV=local`, access does not require login and the package creates its diagram storage table on the first ERD request if it does not exist. It uses the application's configured database; that database must already exist and be reachable. No application migrations are run automatically. All package routes, including compiled assets, examples and panel updates, live under `/erd`.
 
 `erd:install` remains an optional command to publish compiled assets and the package migration. Its `--migrate` flag runs **all pending application migrations**. Outside the local environment, publish and run the migration explicitly. Existing route caches must be regenerated after installing a package; persistent application workers need to load the new code as usual.
-
-After publication, a stable ERD4Dev release will still require explicitly accepting the WireFlow alpha dependency until an upstream stable version is adopted.
 
 ## Access through the application server
 
@@ -101,4 +122,12 @@ composer test
 
 The package's development configuration accepts alpha dependencies and prefers stable versions. Consuming applications must still explicitly accept the WireFlow alpha release as shown above; dependency stability settings are not inherited.
 
-Include the compiled `dist/erd.js` and `dist/erd.css` in releases; consumers do not need Node.js or a frontend build. Rebuild these assets in the demonstration repository using `npm run build:package` and copy its `packages/laravel-erd/dist/` contents here. License notices are in `licenses/`.
+Include the compiled `dist/erd.js` and `dist/erd.css` in releases; consumers do not need Node.js or a frontend build.
+
+## Support and contributions
+
+Report bugs and request features through [GitHub Issues](https://github.com/makermindclub/erd4dev/issues). Include your PHP, Laravel and Livewire versions and steps to reproduce the problem. Pull requests are welcome; run the integration tests before submitting changes.
+
+## License
+
+ERD4Dev is distributed under the [MIT license](https://github.com/makermindclub/erd4dev/blob/main/LICENSE). Third-party license notices are available in [`licenses/`](https://github.com/makermindclub/erd4dev/tree/main/licenses).
