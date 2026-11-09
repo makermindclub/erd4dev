@@ -173,10 +173,10 @@ x-data="{
 
 
     @if ($warnings)
-        <aside class="z-10 border-b border-amber-400/15 bg-amber-400/5 px-5 py-2 text-xs text-amber-200">
+        <aside class="rel-import-warnings z-10 border-b px-5 py-2 text-xs">
             <details>
-                <summary class="cursor-pointer font-medium">{{ count($warnings) }} decisions require manual review</summary>
-                <ul class="mt-2 space-y-1 pl-5 text-amber-100/75">
+                <summary class="cursor-pointer font-medium">{{ count($warnings) }} {{ count($warnings) === 1 ? 'warning' : 'warnings' }} to review</summary>
+                <ul class="mt-2 space-y-1 pl-5">
                     @foreach ($warnings as $warning)
                         <li wire:key="warning-{{ md5($warning) }}" class="list-disc">{{ $warning }}</li>
                     @endforeach
