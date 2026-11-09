@@ -1,10 +1,14 @@
 # ERD4Dev
 
+![Logo do erd4dev](erd4dev-logo.jpeg)
+
+
 ER and relational diagram editor for Laravel, with JSON/SQL import, database schema snapshots, ER-to-relational conversion, SQL export and Laravel Blueprint drafts.
 
 Requires PHP 8.3+, Laravel 12 and Livewire 4.3+. Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
 
-Developed by Professor Giovani's study group. This is an independent project, with no institutional affiliation to IFRN. Distributed under the MIT license; see `LICENSE` and third-party notices in `licenses/`.
+
+Developed by the organization Makermind. This is an independent project. Distributed under the MIT license; please refer to the `LICENSE` file and third-party notices in `licenses/`.
 
 ## Installation
 
