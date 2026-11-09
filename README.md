@@ -12,7 +12,7 @@ Developed by the organization Makermind. This is an independent project. Distrib
 
 ## Installation
 
-The package is not published on Packagist yet. To install locally, add a Composer path repository pointing to this directory:
+The package is published on Packagist. To install locally, add a Composer path repository pointing to this directory:
 
 ```json
 {
