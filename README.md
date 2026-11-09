@@ -49,21 +49,13 @@ The `@dev` constraint is intended for development versions of ERD4Dev. When inst
 
 Open `/erd` at the address and port already used by your application (for example, `http://localhost:8000/erd`). The package is discovered by Laravel automatically. No additional server, restart, Vite, asset publication or installation command is needed for normal local use.
 
-With `APP_ENV=local`, access does not require login and the package creates its diagram storage table on the first ERD request if it does not exist. It uses the application's configured database; that database must already exist and be reachable. No application migrations are run automatically. All package routes, including compiled assets, examples and panel updates, live under `/erd`.
-
 `erd:install` remains an optional command to publish compiled assets and the package migration. Its `--migrate` flag runs **all pending application migrations**. Outside the local environment, publish and run the migration explicitly. Existing route caches must be regenerated after installing a package; persistent application workers need to load the new code as usual.
 
 ## Access through the application server
 
-Outside `APP_ENV=local`, the application must grant the `erd.access` Gate:
+ERD4Dev has no user accounts or per-user diagram ownership. Outside the `local` environment, its middleware requires the host application to authorize the `erd.access` Laravel Gate before allowing access to the editor, including Livewire updates. This is an access check for the entire shared workspace; it does not provide user management. Local development does not require configuring this Gate.
 
-```php
-use Illuminate\Support\Facades\Gate;
-
-Gate::define('erd.access', fn ($user) => $user->can('manage-diagrams'));
-```
-
-The permission in this example must be implemented by the host application. Authorization is checked again on Livewire updates. The package does not supply user registration or authentication.
+To publish the optional package configuration:
 
 ```bash
 php artisan vendor:publish --tag=erd-config
