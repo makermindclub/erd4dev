@@ -41,12 +41,12 @@ Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
 Install from [Packagist](https://packagist.org/packages/makermind/erd4dev) in your Laravel application. ERD4Dev requires WireFlow exactly at its published version `0.2.4-alpha`:
 
 ```bash
-composer require --dev makermind/erd4dev:@dev
+composer require --dev makermind/erd4dev getartisanflow/wireflow:0.2.4-alpha
 ```
 
-The `@dev` constraint is intended for development versions of ERD4Dev. When installing a stable release, use the appropriate stable package constraint.
+Tagged releases are published automatically after tests pass on `main`. Composer selects the latest compatible release. To follow unreleased development code instead, use `makermind/erd4dev:dev-main`.
 
-If your application does not allow alpha dependencies, explicitly allow WireFlow with `composer require getartisanflow/wireflow:0.2.4-alpha makermind/erd4dev:@dev -W`. Replace any existing `^0.1.2@alpha` requirement in the application; it conflicts with `0.2.4-alpha`.
+The WireFlow argument explicitly allows its alpha release in the consuming application. Replace any existing `^0.1.2@alpha` requirement in the application; it conflicts with `0.2.4-alpha`.
 
 Open `/erd` at the address and port already used by your application (for example, `http://localhost:8000/erd`). The package is discovered by Laravel automatically. No additional server, restart, Vite, asset publication or installation command is needed for normal local use.
 
@@ -116,6 +116,16 @@ composer test
 The package's development configuration accepts alpha dependencies and prefers stable versions. Consuming applications must still explicitly accept the WireFlow alpha release as shown above; dependency stability settings are not inherited.
 
 Include the compiled `dist/erd.js` and `dist/erd.css` in releases; consumers do not need Node.js or a frontend build.
+
+## Releases
+
+Develop changes on `develop` and open a pull request into `main`. The **Test and release** workflow tests Laravel 12 and 13 on pull requests and pushes to either branch. Every push to `main`, including a merge from `develop`, publishes a stable Git tag and a GitHub release only after both test jobs pass. The first tag is `v0.1.0`. Subsequent releases inspect commit messages since the latest stable tag: `feat:` or `feat(scope):` increments minor, a conventional commit with `!:` or a `BREAKING CHANGE:` footer increments major, and other changes increment patch. The highest increment wins. Direct pushes to `main` also publish a release, so use pull requests for reviewed changes.
+
+Use conventional commit messages on `develop`; with squash merges, include the desired prefix in the final squash commit message. **Actions → Test and release → Run workflow** on `main` can bootstrap or retry publication. Re-running a workflow for a commit that already has a release reuses its tag instead of creating another version. Existing tags are never moved. Versions come from Git tags; do not add a `version` field to `composer.json`.
+
+Keep the Packagist GitHub webhook enabled. For an explicit update request on each release, add repository Actions secrets **PACKAGIST_USERNAME** and **PACKAGIST_TOKEN**, using a Packagist account with maintainer access. The token is available in the Packagist account profile. Without these secrets, the workflow relies on the existing webhook and emits a warning.
+
+After publishing, a separate job polls the public Composer metadata for the exact tag, commit and WireFlow requirement. If the release is not visible after approximately 15 minutes plus network time, that job fails with an explanation. The GitHub release remains published. Check **View Log** on Packagist and re-run the workflow after fixing synchronization; re-running is safe. Creating a tag does not bypass Packagist propagation or the consuming application's alpha dependency restrictions.
 
 ## Support and contributions
 

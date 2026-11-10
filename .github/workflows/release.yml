@@ -1,0 +1,89 @@
+name: Test and release
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - laravel: '12'
+            testbench: '^10.0'
+          - laravel: '13'
+            testbench: '^11.0'
+    name: Laravel ${{ matrix.laravel }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, pdo_sqlite, xml
+          tools: composer:v2
+          coverage: none
+      - run: composer validate --strict
+      - name: Install dependencies for Laravel ${{ matrix.laravel }}
+        env:
+          TESTBENCH: ${{ matrix.testbench }}
+          LARAVEL: ${{ matrix.laravel }}
+        run: composer update --with "orchestra/testbench:$TESTBENCH" --with "laravel/framework:^$LARAVEL.0" --prefer-dist --no-interaction --no-progress
+      - run: composer test
+      - run: python3 -m unittest discover -s .github/scripts -p 'test_*.py'
+      - name: Check distributed assets
+        run: test -s dist/erd.js && test -s dist/erd.css
+
+  release:
+    needs: test
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-release
+      cancel-in-progress: false
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Select version
+        id: version
+        run: |
+          git fetch origin --tags
+          python3 .github/scripts/release_version.py >> "$GITHUB_OUTPUT"
+      - name: Publish tag and GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if ! git show-ref --verify --quiet "refs/tags/$TAG"; then
+            git tag "$TAG" "$GITHUB_SHA"
+            git push origin "refs/tags/$TAG"
+          fi
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --verify-tag --title "$TAG" --generate-notes
+          fi
+
+  packagist:
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Request sync and verify public Composer metadata
+        env:
+          RELEASE_TAG: ${{ needs.release.outputs.tag }}
+          RELEASE_SHA: ${{ github.sha }}
+          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
+          PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+        run: python3 .github/scripts/packagist_sync.py

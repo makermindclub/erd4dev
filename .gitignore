@@ -4,3 +4,4 @@
 /.phpunit.result.cache
 /.env
 /node_modules/
+__pycache__/
