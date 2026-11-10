@@ -9,7 +9,7 @@
 [![Packagist: makermind/erd4dev](https://img.shields.io/badge/Packagist-makermind%2Ferd4dev-F28D1A?style=flat-square)](https://packagist.org/packages/makermind/erd4dev)
 [![Total Downloads](https://img.shields.io/packagist/dt/makermind/erd4dev.svg?style=flat-square)](https://packagist.org/packages/makermind/erd4dev)
 [![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=flat-square)](https://www.php.net/)
-[![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square)](https://laravel.com/)
+[![Laravel](https://img.shields.io/badge/Laravel-12%2B-FF2D20?style=flat-square)](https://laravel.com/)
 [![Livewire](https://img.shields.io/badge/Livewire-4.3%2B-FB70A9?style=flat-square)](https://livewire.laravel.com/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/makermindclub/erd4dev/blob/main/LICENSE)
 
@@ -31,7 +31,7 @@ Maintained by [Makermind](https://github.com/makermindclub).
 | Dependency | Version |
 | --- | --- |
 | PHP | 8.3+ |
-| Laravel | 13.x |
+| Laravel | 12+ |
 | Livewire | 4.3+ |
 
 Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
