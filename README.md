@@ -32,7 +32,7 @@ Maintained by [Makermind](https://github.com/makermindclub).
 | --- | --- |
 | PHP | 8.3+ |
 | Laravel | 12.x |
-| Livewire | >= 4.3, < 5.0 |
+| Livewire | >= 4.3 |
 
 Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
 
