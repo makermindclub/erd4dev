@@ -1,6 +1,6 @@
 {
     "name": "makermind/erd4dev",
-    "description": "Visual database modeling for Laravel and Livewire, with ER diagrams, relational models, SQL export and Blueprint drafts.",
+    "description": "A Laravel/Livewire ER-diagram editor that turns visual database designs into relational schemas, SQL exports, and Laravel Blueprint drafts.",
     "keywords": ["laravel", "livewire", "erd", "database", "schema", "diagram", "sql", "blueprint"],
     "type": "library",
     "license": "MIT",

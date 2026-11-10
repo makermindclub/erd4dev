@@ -22,11 +22,9 @@ Maintained by [Makermind](https://github.com/makermindclub).
 ## Features
 
 - Design ER diagrams and generate linked relational models.
-- Import and export diagram JSON, import SQL, or read database schema metadata.
+- Import and export diagram JSON, import SQL, or read the current database connection schema metadata.
 - Edit tables, columns, keys and relationships on a visual canvas.
 - Export SQL, diagram images and drafts for [Laravel Blueprint](https://github.com/laravel-shift/blueprint).
-- Use Laravel authorization and your application's configured database connections.
-- Get started with bundled assets and automatic Laravel package discovery.
 
 ## Requirements
 
@@ -34,7 +32,7 @@ Maintained by [Makermind](https://github.com/makermindclub).
 | --- | --- |
 | PHP | 8.3+ |
 | Laravel | 12.x |
-| Livewire | 4.3+ within 4.x |
+| Livewire | >= 4.3, < 5.0 |
 
 Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
 
@@ -70,7 +68,7 @@ JSON import automatically detects ER diagrams and relational models exported by 
 
 Start with an ER model and generate a linked relational model, or import SQL/database metadata directly into an independent editable relational board. Structural changes to linked models belong in the ER source.
 
-SQL is parsed as text and never executed. Database import reads schema metadata from connections configured in `config/database.php`; passwords are not entered in the browser. Supported native drivers are SQLite, MySQL/MariaDB, PostgreSQL and SQL Server, with a 250-table limit. SQLite has been tested against a real database; the remaining drivers still require live-server validation. Oracle is supported through SQL import, not connection import.
+SQL is parsed as text and never executed. Database import reads schema metadata from connections configured in `config/database.php`. Supported Laravel native drivers (SQLite, MySQL/MariaDB, PostgreSQL and SQL Server). Only SQLite has been tested against a real database.
 
 Snapshots contain tables, columns, primary/unique keys and foreign keys. Data, defaults, checks, views, routines, ordinary indexes, collations and referential actions are outside the diagram representation. Unsupported structures are reported. Editing a snapshot changes only the saved diagram, never the source tables or records. Diagram records themselves use the host application's configured storage database.
 
