@@ -38,13 +38,13 @@ Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
 
 ## Installation
 
-Install from [Packagist](https://packagist.org/packages/makermind/erd4dev) in your Laravel application. Explicitly allow the required WireFlow alpha dependency:
+Install from [Packagist](https://packagist.org/packages/makermind/erd4dev) in your Laravel application. ERD4Dev requires WireFlow exactly at version `0.2.4`, which Composer installs automatically:
 
 ```bash
-composer require --dev makermind/erd4dev:@dev getartisanflow/wireflow:^0.1.2@alpha
+composer require --dev makermind/erd4dev:@dev
 ```
 
-The `@dev` constraint is intended for development versions of ERD4Dev. When installing a stable release, use the appropriate stable package constraint while continuing to explicitly allow the WireFlow alpha dependency until a stable upstream version is adopted.
+The `@dev` constraint is intended for development versions of ERD4Dev. When installing a stable release, use the appropriate stable package constraint.
 
 Open `/erd` at the address and port already used by your application (for example, `http://localhost:8000/erd`). The package is discovered by Laravel automatically. No additional server, restart, Vite, asset publication or installation command is needed for normal local use.
 
