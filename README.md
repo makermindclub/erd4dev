@@ -7,6 +7,7 @@
 # ERD4Dev
 
 [![Packagist: makermind/erd4dev](https://img.shields.io/badge/Packagist-makermind%2Ferd4dev-F28D1A?style=flat-square)](https://packagist.org/packages/makermind/erd4dev)
+[![Total Downloads](https://img.shields.io/packagist/dt/makermind/erd4dev.svg?style=flat-square)](https://packagist.org/packages/makermind/erd4dev)
 [![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=flat-square)](https://www.php.net/)
 [![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=flat-square)](https://laravel.com/)
 [![Livewire](https://img.shields.io/badge/Livewire-4.3%2B-FB70A9?style=flat-square)](https://livewire.laravel.com/)
