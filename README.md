@@ -31,8 +31,8 @@ Maintained by [Makermind](https://github.com/makermindclub).
 | Dependency | Version |
 | --- | --- |
 | PHP | 8.3+ |
-| Laravel | 12.x |
-| Livewire | >= 4.3 |
+| Laravel | 12+ |
+| Livewire | 4.3+ |
 
 Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
 
