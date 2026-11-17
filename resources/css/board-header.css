@@ -72,6 +72,19 @@
 .board-menu-context { display: grid; gap: 3px; border-bottom: 1px solid #e2e8f0; padding: 7px 10px 10px; }
 .board-menu-context strong { overflow: hidden; color: #0f172a; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .board-menu-context span { color: #64748b; font-size: 10px; }
+.board-menu-panel .board-menu-toggle {
+    display: flex; min-height: 54px; align-items: center; justify-content: space-between; gap: 10px;
+    margin-block: 3px; border: 1px solid #cbd5e1; background: #f8fafc; padding: 9px 10px;
+}
+.board-menu-toggle-copy { display: grid; gap: 3px; }
+.board-menu-toggle-copy strong { color: #0f172a; font-size: 11px; font-weight: 800; }
+.board-menu-toggle-copy small { color: #64748b; font-size: 9px; font-weight: 500; }
+.board-menu-toggle-state {
+    flex: none; border-radius: 999px; background: #e2e8f0; color: #475569;
+    padding: 4px 7px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+}
+.board-menu-toggle-state.is-on { background: #cffafe; color: #0e7490; }
+.board-menu-panel .board-menu-toggle:hover { border-color: var(--board-accent); background: var(--board-accent-soft); }
 .board-toolbar-workflow { display: flex; min-height: 50px; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid #eef2f7; background: rgb(248 250 252 / 88%); padding: 8px 20px; }
 .board-create-form { display: flex; min-width: 0; align-items: center; gap: 8px; }
 .board-create-form label { color: #64748b; font-size: 10px; font-weight: 800; white-space: nowrap; }
@@ -100,6 +113,11 @@
 .dark .board-menu-panel { border-color: #334155; background: #111c2d; box-shadow: 0 20px 48px rgb(0 0 0 / 30%); }
 .dark .board-menu-panel button,
 .dark .board-menu-panel a { color: #cbd5e1; }
+.dark .board-menu-panel .board-menu-toggle { border-color: #334155; background: #0f172a; }
+.dark .board-menu-toggle-copy strong { color: #f8fafc; }
+.dark .board-menu-toggle-copy small { color: #94a3b8; }
+.dark .board-menu-toggle-state { background: #334155; color: #cbd5e1; }
+.dark .board-menu-toggle-state.is-on { background: rgb(8 145 178 / 20%); color: #a5f3fc; }
 .dark .board-menu-panel button:hover,
 .dark .board-menu-panel a:hover { background: #1e354a; color: #fff; }
 .dark .board-menu-context { border-color: #334155; }

@@ -80,6 +80,8 @@ On imported boards, **New table** creates a table with an id primary key. Rename
 
 The header places the database selector on the left, model tabs in the center and actions on the right. New table and Relationships are adjacent. Smaller screens keep a single toolbar row and expose secondary actions through **More**. SQL, Blueprint draft and image exports are in More on all screen sizes.
 
+In an existing relational project, choose **More → Hide Laravel tables** to hide or show framework tables on the board. This preference is saved with the project and also controls which tables appear in SQL and JSON exports. Database imports also offer **Hide Laravel internal tables** (enabled by default) to omit them before the project is created. Both controls preserve `users`. Blueprint drafts always omit Laravel internals, regardless of these settings or import format. `users` remains in SQL, JSON and Blueprint output and can be edited freely, so keep its schema synchronized with the application's authentication database.
+
 Public ER examples include only features configurable in the current interface. Readers retain compatibility with legacy diagrams and previously generated SQL headers. Existing user-authored names and saved diagram contents are not translated automatically.
 
 ## Blueprint drafts
@@ -116,6 +118,18 @@ composer test
 The package's development configuration accepts alpha dependencies and prefers stable versions. Consuming applications must still explicitly accept the WireFlow alpha release as shown above; dependency stability settings are not inherited.
 
 Include the compiled `dist/erd.js` and `dist/erd.css` in releases; consumers do not need Node.js or a frontend build.
+
+### Browser demo in Docker
+
+To run the package inside a disposable Laravel host app, with the current checkout mounted as a local Composer path dependency:
+
+```bash
+docker compose -f demo/compose.yaml up --build
+```
+
+Open `http://localhost:8080/erd` (or `http://buntinho:8080/erd` when running on that host). The container creates a Laravel application, uses SQLite for saved diagrams, and exposes the package's normal dashboard, Livewire update endpoint, schema editor and relational editor. Local-environment access is enabled by the package middleware. Generated Blueprint drafts are written to `demo/blueprints/` on the host; the SQLite database lives in `demo/storage/`. Both are ignored by Git. Stop the container with `Ctrl+C` and remove it with `docker compose -f demo/compose.yaml down`.
+
+The `demo/` harness is excluded from Composer archives via `.gitattributes`; it does not add a web app or deployment step to the release workflow on `main`.
 
 ## Releases
 

@@ -38,9 +38,10 @@ x-data="{
     @relational-edit-rejected.window="showNotice($event.detail.message, 'warning')"
     @relational-dialect-warning.window="showDialectNotice($event.detail.message)">
     <x-erd::board-header mode="relational" :diagram-name="$diagramName" :dialect="$dialect" :has-draft-notice="(bool) ($draftPath || $draftError)" :source-diagram-id="$sourceDiagramId"
-        :source-diagram-name="$sourceDiagramName" :tables-count="count($tables)"
-        :columns-count="collect($tables)->sum(fn (array $table) => count($table['columns']))"
-        :foreign-keys-count="count($foreignKeys)" />
+        :source-diagram-name="$sourceDiagramName" :tables-count="count($visibleTables)"
+        :columns-count="collect($visibleTables)->sum(fn (array $table) => count($table['columns']))"
+        :hide-laravel-tables="$hideLaravelTables"
+        :foreign-keys-count="count($visibleForeignKeys)" />
 
     @if ($isOutdated)
         {{-- The ER source changed after generation. Show drift and reuse the existing regeneration action and confirmation. --}}

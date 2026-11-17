@@ -4,6 +4,7 @@ namespace Makermind\Erd4dev\Services;
 
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Makermind\Erd4dev\Support\LaravelTableFilter;
 use Symfony\Component\Yaml\Yaml;
 
 final class BlueprintDraftGenerator
@@ -11,15 +12,25 @@ final class BlueprintDraftGenerator
     /** @return array{yaml:string,warnings:array} */
     public function generate(array $data): array
     {
-        $tables = $data['tables'] ?? [];
+        $tables = (new LaravelTableFilter)->tables($data['tables'] ?? []);
         if ($tables === []) {
-            throw new InvalidArgumentException('Add a table before generating a draft.');
+            throw new InvalidArgumentException('Add an application table before generating a draft. Laravel internal tables are excluded.');
         }
+        $includedIds = array_column($tables, 'id');
+        $data['tables'] = $tables;
+        $data['foreignKeys'] = array_values(array_filter(
+            $data['foreignKeys'] ?? [],
+            fn (array $key): bool => in_array($key['fromTable'] ?? null, $includedIds, true)
+                && in_array($key['toTable'] ?? null, $includedIds, true),
+        ));
         // Reuse the board's schema validation; generating SQL here never executes it.
         (new RelationalSqlGenerator)->generate($data);
         $models = [];
         $byId = array_column($tables, null, 'id');
         $warnings = array_values($data['warnings'] ?? []);
+        if (collect($tables)->contains(fn (array $table): bool => strtolower((string) str($table['name'] ?? '')->afterLast('.')) === 'users')) {
+            $warnings[] = 'The users table is included. Keep its Blueprint definition aligned with the authentication table in the application database.';
+        }
         $foreign = [];
         foreach ($data['foreignKeys'] ?? [] as $key) {
             $group = $key['fromTable'].'|'.$key['toTable'].'|'.($key['relationshipName'] ?? $key['id']);

@@ -12,6 +12,7 @@
     'tablesCount' => 0,
     'columnsCount' => 0,
     'foreignKeysCount' => 0,
+    'hideLaravelTables' => false,
 ])
 
 @php($isEr = $mode === 'er')
@@ -91,6 +92,19 @@
                     @if (! $isEr && ! $sourceDiagramId)
                         <button type="button" class="board-menu-compact" wire:click="openTableCreator" @click="$el.closest('details').open = false">New table</button>
                         <button type="button" class="board-menu-compact" wire:click="openStructureEditor" @click="$el.closest('details').open = false">Relationships</button>
+                    @endif
+                    @if (! $isEr)
+                        <button type="button" class="board-menu-toggle" wire:click="toggleLaravelTables"
+                            aria-pressed="{{ $hideLaravelTables ? 'true' : 'false' }}"
+                            title="{{ $hideLaravelTables ? 'Show Laravel internal tables in the canvas and exports' : 'Hide Laravel internal tables from the canvas and exports' }}">
+                            <span class="board-menu-toggle-copy">
+                                <strong>Laravel internal tables</strong>
+                                <small>{{ $hideLaravelTables ? 'Hidden from board and exports' : 'Shown in board and exports' }}</small>
+                            </span>
+                            <span class="board-menu-toggle-state {{ $hideLaravelTables ? 'is-on' : '' }}" aria-hidden="true">
+                                {{ $hideLaravelTables ? 'Hidden' : 'Shown' }}
+                            </span>
+                        </button>
                     @endif
                     <button type="button" class="board-menu-compact" wire:click="organizeBoard" @click="$el.closest('details').open = false">Arrange</button>
                     <button type="button" class="board-menu-save" wire:click="save" @click="$el.closest('details').open = false">Save</button>

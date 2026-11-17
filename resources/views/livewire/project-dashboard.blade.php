@@ -93,6 +93,13 @@
                             @endforeach
                         </select>
                     </label>
+                    <label class="flex items-start gap-3 rounded-xl border border-slate-200 p-3 text-sm dark:border-white/10">
+                        <input type="checkbox" wire:model="hideLaravelTablesOnImport" class="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                        <span>
+                            <strong class="block font-medium text-slate-900 dark:text-slate-100">Hide Laravel internal tables</strong>
+                            <small class="mt-1 block text-slate-600 dark:text-slate-400">Exclude framework tables such as cache, jobs, migrations, sessions and ERD4Dev diagrams. The users table is always kept.</small>
+                        </span>
+                    </label>
                     <p>Configure the connection and credentials in your Laravel project before importing.</p>
                 @elseif ($importFormat === 'sql')
                     <p>Tables, columns and keys are imported as an editable relational model. Data, routines, defaults, checks and automatic generation are omitted. Single and composite PRIMARY, UNIQUE and FOREIGN keys are recognized in CREATE TABLE and ALTER TABLE statements; UNIQUE indexes are also imported.</p>

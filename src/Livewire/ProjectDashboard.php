@@ -16,6 +16,7 @@ use Makermind\Erd4dev\Services\RelationalDiagramDriftAnalyzer;
 use Makermind\Erd4dev\Support\DatabaseDiagramImporter;
 use Makermind\Erd4dev\Support\ErDiagramImporter;
 use Makermind\Erd4dev\Support\JsonDiagramImporter;
+use Makermind\Erd4dev\Support\LaravelTableFilter;
 use Makermind\Erd4dev\Support\SqlDiagramImporter;
 
 #[Layout('erd::layouts.app')]
@@ -36,6 +37,8 @@ class ProjectDashboard extends Component
     public string $importSql = '';
 
     public string $importConnection = '';
+
+    public bool $hideLaravelTablesOnImport = true;
 
     #[Computed]
     public function databaseConnections(): array
@@ -148,6 +151,26 @@ class ProjectDashboard extends Component
 
             return;
         }
+
+        if ($this->hideLaravelTablesOnImport) {
+            $originalCount = count($data['tables'] ?? []);
+            $data['tables'] = (new LaravelTableFilter)->tables($data['tables'] ?? []);
+            $includedIds = array_column($data['tables'], 'id');
+            $data['foreignKeys'] = array_values(array_filter(
+                $data['foreignKeys'] ?? [],
+                fn (array $key): bool => in_array($key['fromTable'] ?? null, $includedIds, true)
+                    && in_array($key['toTable'] ?? null, $includedIds, true),
+            ));
+            if ($data['tables'] === []) {
+                $this->importError = 'No application tables were found after hiding Laravel internal tables. Turn off the hide option to import this schema.';
+
+                return;
+            }
+            if (count($data['tables']) < $originalCount) {
+                $data['warnings'][] = 'Laravel internal tables were excluded during import. The users table remains included.';
+            }
+        }
+
         $diagram = Diagram::create([
             'name' => trim($this->importProjectName),
             'type' => Diagram::TYPE_RELATIONAL,
