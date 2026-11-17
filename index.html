@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#020002">
+  <meta name="description" content="ERD4Dev is the visual editor for ER diagrams and relational models for Laravel. Draw, model, and generate SQL or Laravel Blueprint drafts.">
+  <meta property="og:title" content="ERD4Dev — Visualize before you code">
+  <meta property="og:description" content="The visual path from diagram to database. Developed by Makermind.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/erd4dev-logo.png">
+  <title>ERD4Dev — Design. Model. Generate SQL.</title>
+  <link rel="icon" href="assets/flow-chart.png" type="image/svg+xml">
+  <script>
+    // Applies the saved preference before rendering the page (avoids theme flashing).
+    try {
+      if (localStorage.getItem('erd4dev-theme') === 'light') {
+        document.documentElement.dataset.theme = 'light';
+      }
+    } catch (_) {}
+    if (window.matchMedia && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('swarm-intro');
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="erd-demo.css">
+  <link rel="stylesheet" href="theme.css">
+  <script defer src="theme.js"></script>
+  <script defer src="script.js"></script>
+  <script defer src="erd-demo.js"></script>
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4.3 1.4-4.3-2.3-6-2.8m12 6v-3.2a2.8 2.8 0 0 0-.8-2.2c2.7-.3 5.6-1.3 5.6-6.1a4.8 4.8 0 0 0-1.3-3.3 4.5 4.5 0 0 0-.1-3.3s-1.1-.4-3.4 1.3a11.8 11.8 0 0 0-6.2 0C6.5 3.7 5.4 4.1 5.4 4.1a4.5 4.5 0 0 0-.1 3.3A4.8 4.8 0 0 0 4 10.7c0 4.8 2.9 5.8 5.6 6.1a2.8 2.8 0 0 0-.8 2.2V22"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 8-4 4 4 4m8-8 4 4-4 4m-3-11-2 18"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 6-10 6L2 8l10-6Zm-10 11 10 6 10-6M2 18l10 6 10-6"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="16" cy="17" r="3"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="3"/><path d="m6 9 4 3-4 3m7 0h5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M5 5 19 19M19 5 5 19"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.4 15.5A8.5 8.5 0 0 1 8.5 3.6 8.5 8.5 0 1 0 20.4 15.5Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  </svg>
+
+  <!-- Opening animation: collaborative cursors assemble the actual page elements. -->
+  <div class="swarm-overlay" id="swarm-overlay" hidden>
+    <div class="swarm-blueprint" aria-hidden="true"></div>
+    <div class="swarm-stage" role="status" aria-live="off">
+      <div class="swarm-stage-top">
+        <span class="swarm-stage-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>ERD4DEV <span class="swarm-stage-divider">/</span> MAKERMIND</span>
+        <strong id="swarm-count">00 / 06</strong>
+      </div>
+      <div class="swarm-stage-name"><span class="swarm-stage-live"></span><span id="swarm-stage-text">Initializing interface...</span></div>
+      <div class="swarm-progress"><span id="swarm-progress-fill"></span></div>
+    </div>
+    <button type="button" id="swarm-skip" class="swarm-skip">Skip animation <span aria-hidden="true">↗</span></button>
+    <div class="swarm-pointer-layer" id="swarm-pointer-layer" aria-hidden="true"></div>
+  </div>
+
+  <a href="#conteudo" class="skip-link">Skip to content</a>
+
+  <div class="announcement">
+    <div class="container announcement-inner">
+      <span class="announcement-pill">NEW <span aria-hidden="true">✦</span> v0.1.0</span>
+      <span>ERD4Dev is now available on Packagist.</span>
+      <a href="https://packagist.org/packages/makermind/erd4dev" target="_blank" rel="noopener noreferrer">Explore the package <svg class="icon small"><use href="#i-arrow-up"/></svg></a>
+    </div>
+  </div>
+
+  <header class="site-header" id="topo">
+    <div class="container header-inner">
+      <a class="brand" href="#topo" aria-label="ERD4Dev — home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><i></i></span>
+        <span class="brand-title">ERD<span>4</span>Dev</span>
+      </a>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="#recursos">Features</a>
+        <a href="#experiencia">Platform</a>
+        <a href="#fluxo">How it works</a>
+        <a href="#instalacao">Documentation</a>
+        <a href="#makermind">Makermind</a>
+      </nav>
+      <div class="header-actions">
+        <a class="github-link" href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer" aria-label="View the ERD4Dev repository on GitHub"><svg class="icon"><use href="#i-github"/></svg><span>GitHub</span></a>
+        <a class="btn btn-small btn-light header-cta" href="#instalacao">Get started <svg class="icon small"><use href="#i-arrow-up"/></svg></a>
+      </div>
+      <button class="theme-toggle" type="button" id="theme-toggle" aria-label="Enable light theme" aria-pressed="false" title="Toggle light/dark theme"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg></button>
+      <button class="mobile-menu-button" type="button" id="menu-toggle" aria-label="Open menu" aria-controls="mobile-nav" aria-expanded="false"><svg class="icon"><use href="#i-menu"/></svg></button>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
+      <a href="#recursos">Features</a><a href="#experiencia">Platform</a><a href="#fluxo">How it works</a><a href="#instalacao">Documentation</a><a href="#makermind">Makermind</a><a href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>
+    </nav>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="container hero-content">
+        <div class="hero-copy reveal">
+          <div class="eyebrow"><span class="pulse"></span> DATA MODELING FOR LARAVEL</div>
+          <h1 id="hero-title"><span class="swarm-title-line">Your ideas.</span><span class="swarm-title-line">Your diagrams.</span><span class="swarm-title-line gradient-ink">Your database.</span></h1>
+          <p>From your first entity to project-ready SQL. Model visually, connect relationships, and turn diagrams into real structures — without leaving Laravel.</p>
+          <div class="hero-buttons">
+            <a class="btn btn-primary" href="#instalacao">Start modeling <svg class="icon small"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn-outline" href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#i-github"/></svg> Explore on GitHub</a>
+          </div>
+          <div class="hero-meta"><span><svg class="icon mini"><use href="#i-check"/></svg> Open source · MIT</span><span class="meta-divider"></span><span>Made by <strong>Makermind</strong></span></div>
+        </div>
+
+        <div class="hero-visual reveal" style="--delay: .12s">
+          <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
+          <div class="hero-logo-wrap">
+            <img class="hero-brand-logo" src="assets/erd4dev-logo-3d.png" alt="Official 3D ERD4Dev logo with connected database diagrams and the words Design, Model, Generate SQL" width="1254" height="1254" fetchpriority="high" decoding="async">
+          </div>
+        </div>
+      </div>
+      <div class="hero-bottom-fade" aria-hidden="true"></div>
+    </section>
+
+    <div class="tech-strip" aria-label="Key technologies and features"><div class="container tech-inner"><span>BUILT FOR THE ECOSYSTEM</span><strong>Laravel</strong><span class="tech-divider"></span><strong>Livewire</strong><span class="tech-divider"></span><strong>SQL</strong><span class="tech-divider"></span><strong>Blueprint</strong><span class="tech-divider"></span><strong>Composer</strong></div></div>
+
+    <section class="section section-intro" id="recursos" aria-labelledby="features-title">
+      <div class="container">
+        <div class="section-header reveal"><div class="section-kicker"><span class="kicker-line"></span> BUILT FOR BUILDERS</div><h2 id="features-title">Less complexity.<br><span class="muted-heading">More clarity in your project.</span></h2><p>See how data connects, evolve your structure, and keep everything in the same development environment.</p></div>
+        <div class="feature-grid">
+          <article class="feature-card feature-card-large reveal"><div class="feature-card-inner"><span class="feature-icon"><svg class="icon"><use href="#i-layers"/></svg></span><h3>Drag your ideas<br>into the diagram.</h3><p>Create entities, configure attributes, and define relationships in an organized visual experience.</p><span class="feature-link">ER modeling <svg class="icon mini"><use href="#i-arrow-up"/></svg></span></div><div class="graphic-entities" aria-hidden="true"><div class="graphic-line line-a"></div><div class="graphic-line line-b"></div><div class="graphic-entity graphic-a"><span>users</span><i></i><i></i><i></i></div><div class="graphic-entity graphic-b"><span>orders</span><i></i><i></i></div><div class="graphic-entity graphic-c"><span>products</span><i></i><i></i></div></div></article>
+          <article class="feature-card reveal" style="--delay: .08s"><span class="feature-icon"><svg class="icon"><use href="#i-database"/></svg></span><div class="feature-illustration database-illus" aria-hidden="true"><div class="db-ring ring-one"></div><div class="db-ring ring-two"></div><div class="db-ring ring-three"></div></div><h3>Import. Understand.<br>Keep going.</h3><p>Bring JSON, SQL, or metadata from connections configured in Laravel into your model.</p></article>
+          <article class="feature-card reveal" style="--delay: .16s"><span class="feature-icon"><svg class="icon"><use href="#i-code"/></svg></span><div class="feature-illustration code-illus" aria-hidden="true"><span>&lt;sql&gt;</span><i></i><i></i><i></i><span>&lt;/sql&gt;</span></div><h3>From model<br>to code.</h3><p>Export SQL, diagram images, and Laravel Blueprint drafts for review.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-experience" id="experiencia" aria-labelledby="experience-title"><div class="container experience-grid"><div class="experience-copy reveal"><div class="section-kicker"><span class="kicker-line"></span> ALL IN YOUR WORKFLOW</div><h2 id="experience-title">Build the structure.<br><span class="accent">We help</span><br>connect it all.</h2><p>ERD4Dev brings data modeling together in a visual interface integrated with your Laravel application. Start from scratch or build on what you already have.</p><div class="experience-list"><div><span class="list-check"><svg class="icon mini"><use href="#i-check"/></svg></span><span>ER diagrams and relational models</span></div><div><span class="list-check"><svg class="icon mini"><use href="#i-check"/></svg></span><span>Primary keys, foreign keys, and cardinality</span></div><div><span class="list-check"><svg class="icon mini"><use href="#i-check"/></svg></span><span>Import and export with greater control</span></div><div><span class="list-check"><svg class="icon mini"><use href="#i-check"/></svg></span><span>Integration with your Laravel environment</span></div></div><a class="text-link" href="https://github.com/makermindclub/erd4dev#readme" target="_blank" rel="noopener noreferrer">View full documentation <svg class="icon small"><use href="#i-arrow-up"/></svg></a></div><div class="experience-visual reveal" style="--delay: .12s"><div class="visual-shine" aria-hidden="true"></div><div class="terminal-floating"><div class="terminal-title"><span class="terminal-dots"><i></i><i></i><i></i></span><span>diagram-to-code</span><svg class="icon mini"><use href="#i-code"/></svg></div><div class="terminal-content"><div><span class="terminal-line-no">01</span><span class="term-comment">// Ready to transform</span></div><div><span class="terminal-line-no">02</span><span class="term-purple">entity</span> <span class="term-white">"User"</span> {</div><div><span class="terminal-line-no">03</span>&nbsp; id: <span class="term-blue">bigint</span></div><div><span class="terminal-line-no">04</span>&nbsp; name: <span class="term-blue">varchar</span></div><div><span class="terminal-line-no">05</span>&nbsp; email: <span class="term-blue">varchar</span></div><div><span class="terminal-line-no">06</span> }</div><div><span class="terminal-line-no">07</span></div><div><span class="terminal-line-no">08</span><span class="term-purple">relation</span> <span class="term-white">User → Order</span></div></div><div class="terminal-result"><span><svg class="icon mini"><use href="#i-check"/></svg> Structured model</span><span class="terminal-result-tiny">ERD4Dev</span></div></div><div class="visual-label"><span class="visual-label-pulse"></span> DIAGRAMS THAT BECOME STRUCTURES</div></div></div></section>
+
+    <section class="section section-flow" id="fluxo" aria-labelledby="flow-title"><div class="container"><div class="section-header section-header-center reveal"><div class="section-kicker"><span class="kicker-line"></span> SIMPLE FROM START TO FINISH</div><h2 id="flow-title">From idea to database.<br><span class="muted-heading">Without losing your train of thought.</span></h2><p>A workflow designed so you spend more time on data architecture and less on configuration.</p></div><div class="steps-grid"><article class="step-card reveal"><div class="step-index">01 <span></span></div><div class="step-visual step-first" aria-hidden="true"><div class="step-node node-one"></div><div class="step-node node-two"></div><div class="step-node node-three"></div><svg viewBox="0 0 340 160" preserveAspectRatio="none"><path d="M98 76 H168 V118 H243 M168 76 V45 H243"/></svg></div><h3>Design</h3><p>Create entities, attributes, and relationships in the visual editor.</p></article><article class="step-card reveal" style="--delay: .08s"><div class="step-index">02 <span></span></div><div class="step-visual step-second" aria-hidden="true"><div class="transform-box"><span>ER</span><svg class="icon"><use href="#i-arrow"/></svg><span>REL</span></div><div class="orbit-small"></div></div><h3>Structure</h3><p>Convert the ER model and refine tables, columns, and keys.</p></article><article class="step-card reveal" style="--delay: .16s"><div class="step-index">03 <span></span></div><div class="step-visual step-third" aria-hidden="true"><div class="file-icon"><span>SQL</span><span>_ _ _</span><span>_ _</span></div><span class="file-arrow"><svg class="icon"><use href="#i-arrow-up"/></svg></span></div><h3>Generate</h3><p>Export SQL or a Blueprint draft to review and use.</p></article></div></div></section>
+
+    <section class="section install-section" id="instalacao" aria-labelledby="install-title"><div class="container install-grid"><div class="install-copy reveal"><div class="section-kicker"><span class="kicker-line"></span> START BUILDING</div><h2 id="install-title">Ready when<br><span class="accent">you are.</span></h2><p>Install the package in your Laravel project via Composer and open the editor at the <code>/erd</code> route in your application.</p><div class="requirements"><span>PHP 8.3+</span><span>Laravel 12+</span><span>Livewire 4.3+</span></div><a class="text-link" href="https://packagist.org/packages/makermind/erd4dev" target="_blank" rel="noopener noreferrer">View on Packagist <svg class="icon small"><use href="#i-arrow-up"/></svg></a></div><div class="install-terminal reveal" style="--delay: .1s"><div class="install-terminal-top"><span class="install-left"><span class="prompt-circle"><svg class="icon mini"><use href="#i-terminal"/></svg></span> terminal</span><span>bash</span></div><div class="install-terminal-body"><div class="install-caption"># 1. Install in your Laravel project</div><div class="code-line"><span class="prompt-char">$</span><code id="install-command">composer require --dev makermind/erd4dev</code></div><button class="copy-button" type="button" data-copy-target="install-command" aria-label="Copy installation command"><svg class="icon"><use href="#i-copy"/></svg><span>Copy</span></button><div class="code-separator"></div><div class="install-caption"># 2. Open the editor at your application address</div><div class="code-line"><span class="prompt-char">→</span><code>http://localhost:8000/erd</code></div><div class="success-line"><span><svg class="icon mini"><use href="#i-check"/></svg></span> Everything is ready to start modeling.</div></div><div class="install-terminal-footer"><span class="release-dot"></span> Version 0.1.0 <span class="footer-spacer"></span> MIT License</div></div></div></section>
+
+    <section class="section maker-section" id="makermind" aria-labelledby="maker-title"><div class="container maker-layout"><div class="maker-logo-card reveal"><img src="assets/erd4dev-logo.png" width="1254" height="1254" alt="Official ERD4Dev logo with three connected diagrams and the words ERD4Dev — Design, Model, Generate SQL" loading="lazy"><span class="maker-card-tag">ERD4DEV IDENTITY</span></div><div class="maker-copy reveal" style="--delay: .08s"><div class="section-kicker"><span class="kicker-line"></span> ABOUT THE PROJECT</div><h2 id="maker-title">Created for<br>those who love<br><span class="accent">building.</span></h2><p>ERD4Dev is an open-source project developed by <strong>Makermind</strong> to make database modeling more visual, accessible, and connected to the Laravel development workflow.</p><p>An independent tool designed to turn good ideas into organized structures.</p><a class="btn btn-outline maker-button" href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer">Explore the project <svg class="icon small"><use href="#i-arrow-up"/></svg></a></div></div></section>
+
+    <!-- Interactive ERD4Dev playground: client-side demo, independent of Laravel. -->
+    <section class="cta-section erd-showcase" id="demonstracao" aria-labelledby="erd-showcase-title">
+      <div class="container">
+        <div class="erd-showcase-heading reveal">
+          <div class="section-kicker"><span class="kicker-line"></span> TRY IT YOURSELF</div>
+          <h2 id="erd-showcase-title">From an idea to a <span>diagram.</span></h2>
+          <p>Drag entities, change attributes, and create relationships. Then see how your model can become tables and SQL.</p>
+        </div>
+        <div class="erd-playground reveal" id="erd-playground" aria-label="Interactive ERD4Dev editor demo">
+          <div class="ed-topbar">
+            <div class="ed-project-id">
+              <span class="ed-project-icon" aria-hidden="true">ER</span>
+              <div><strong>ER Modeler</strong><span>Demo project</span></div>
+            </div>
+            <span class="ed-live-indicator"><span></span> INTERACTIVE</span>
+            <div class="ed-top-actions">
+              <button type="button" class="ed-icon-button" id="ed-reset" title="Restore example">↻ <span>Reset</span></button>
+            </div>
+          </div>
+          <div class="ed-toolbar" id="ed-toolbar">
+            <form id="ed-create-form" class="ed-create-form" autocomplete="off">
+              <label for="ed-new-name">NEW ENTITY</label>
+              <input type="text" id="ed-new-name" name="entity" maxlength="28" placeholder="e.g., products" spellcheck="false" aria-label="New entity name">
+              <button type="submit" class="ed-action ed-action-primary">＋ Add</button>
+            </form>
+            <span class="ed-tool-divider" aria-hidden="true"></span>
+            <button type="button" id="ed-connect" class="ed-action ed-action-secondary" aria-pressed="false">◇ Connect</button>
+            <span id="ed-hint" class="ed-hint" role="status" aria-live="polite">Click the pencil to edit • Drag to move</span>
+          </div>
+          <div class="ed-tabs" role="tablist" aria-label="Modeling stages">
+            <button type="button" id="ed-tab-er" class="ed-tab active" role="tab" aria-selected="true" aria-controls="ed-er-panel" data-ed-tab="er">ER Model</button>
+            <button type="button" id="ed-tab-rel" class="ed-tab" role="tab" aria-selected="false" aria-controls="ed-rel-panel" data-ed-tab="rel" tabindex="-1">Relational</button>
+            <button type="button" id="ed-tab-sql" class="ed-tab" role="tab" aria-selected="false" aria-controls="ed-sql-panel" data-ed-tab="sql" tabindex="-1">SQL</button>
+            <span class="ed-tab-right"><span class="ed-saved-dot"></span> Local demo</span>
+          </div>
+          <div class="ed-panel" id="ed-er-panel" role="tabpanel" aria-labelledby="ed-tab-er">
+            <div class="ed-scroll" id="ed-scroll" tabindex="0" aria-label="Entity and relationship editing area. On small screens, swipe sideways.">
+              <div class="ed-workspace" id="ed-workspace">
+                <svg id="ed-links" class="ed-links" xmlns="http://www.w3.org/2000/svg" aria-label="Connections between entities"><g id="ed-edge-lines"></g><path id="ed-draft-line" class="ed-draft-line" hidden></path></svg>
+                <div id="ed-nodes" class="ed-nodes"></div>
+              </div>
+            </div>
+            <div class="ed-canvas-foot"><span><span class="ed-saved-dot"></span><span id="ed-entity-count">2 entities</span> · <span id="ed-relation-count">1 relationship</span></span><span><span class="ed-desktop-hint">Drag the purple bars to rearrange <span class="ed-foot-sep">·</span> Click ◇ to connect</span><span class="ed-mobile-hint">Swipe sideways to explore entities →</span></span></div>
+          </div>
+          <div class="ed-panel ed-rel-panel" id="ed-rel-panel" role="tabpanel" aria-labelledby="ed-tab-rel" hidden>
+            <div class="ed-panel-intro"><strong>Relational model</strong><span>Tables and foreign keys derived from the diagram</span></div>
+            <div class="ed-rel-content" id="ed-rel-content"></div>
+          </div>
+          <div class="ed-panel ed-sql-panel" id="ed-sql-panel" role="tabpanel" aria-labelledby="ed-tab-sql" hidden>
+            <div class="ed-sql-top"><div><strong>SQL generated from the model</strong><span>Illustrative preview — review before running against a database</span></div><button type="button" class="ed-action ed-action-primary" id="ed-copy-sql">Copy SQL</button></div>
+            <pre class="ed-code" tabindex="0"><code id="ed-sql-code"></code></pre>
+          </div>
+        </div>
+        <div class="ed-showcase-foot reveal"><p><strong>Like this workflow?</strong> Install ERD4Dev in your Laravel project to use the complete tool.</p><div class="ed-showcase-links"><a class="btn btn-primary" href="#instalacao">Install ERD4Dev <svg class="icon small"><use href="#i-arrow-up"/></svg></a><a class="btn btn-outline" href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer">View repository</a></div></div>
+      </div>
+    </section>
+
+    <div class="ed-dialog" id="ed-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="ed-dialog-title">
+      <div class="ed-dialog-backdrop" data-ed-close="true"></div>
+      <div class="ed-dialog-card">
+        <div class="ed-dialog-heading"><div><span>ERD4DEV / PROPERTIES</span><h3 id="ed-dialog-title">Edit entity</h3></div><button type="button" class="ed-dialog-x" data-ed-close="true" aria-label="Close editor">×</button></div>
+        <form id="ed-edit-form">
+          <div id="ed-dialog-fields"></div>
+          <div class="ed-dialog-error" id="ed-dialog-error" role="alert"></div>
+          <div class="ed-dialog-actions"><button type="button" class="ed-action ed-action-secondary" data-ed-close="true">Cancel</button><button type="submit" class="ed-action ed-action-primary">Save changes</button></div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer"><div class="container"><div class="footer-main"><div class="footer-about"><a class="brand" href="#topo" aria-label="Back to home"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><i></i></span><span class="brand-title">ERD<span>4</span>Dev</span></a><p>Design. Model. Generate SQL.<br>Database diagramming for developers.</p><div class="footer-maker">Created by <strong>Makermind</strong>.</div></div><div class="footer-column"><h3>Navigation</h3><a href="#recursos">Features</a><a href="#experiencia">Platform</a><a href="#fluxo">How it works</a><a href="#instalacao">Installation</a></div><div class="footer-column"><h3>Project</h3><a href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="https://packagist.org/packages/makermind/erd4dev" target="_blank" rel="noopener noreferrer">Packagist ↗</a><a href="https://github.com/makermindclub/erd4dev#readme" target="_blank" rel="noopener noreferrer">Documentation ↗</a><a href="https://github.com/makermindclub/erd4dev/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License ↗</a></div></div><div class="footer-bottom"><span>© <span id="current-year">2026</span> Makermind. ERD4Dev.</span><span>Made with ideas, code, and connections.</span><a href="#topo">Back to top ↑</a></div></div></footer>
+</body>
+</html>

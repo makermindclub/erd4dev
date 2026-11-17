@@ -1,0 +1,225 @@
+/* Visual theme switching; the original dark theme remains exactly as provided. */
+.theme-toggle {
+  appearance:none; display:inline-flex; align-items:center; justify-content:center;
+  width:40px; height:40px; flex:0 0 40px; padding:0;
+  border:1px solid var(--white-20); border-radius:8px;
+  background:var(--white-05); color:var(--white); cursor:pointer;
+  transition:background .2s ease,border-color .2s ease,color .2s ease;
+}
+.theme-toggle:hover {background:var(--purple-soft);border-color:var(--accent)}
+.theme-toggle .icon {width:19px;height:19px}
+@media(max-width:920px) {
+  .theme-toggle {margin-left:auto}
+  .mobile-menu-button {margin-left:0}
+}
+
+/* Semantic colors: also update older sections based on variables. */
+html[data-theme="light"] {
+  color-scheme:light;
+  --base:#f8f9ff;
+  --accent:#6E74F7;
+  --white:#1b1b30;
+  --white-05:rgba(27,27,48,.045);
+  --white-08:rgba(27,27,48,.09);
+  --white-12:rgba(27,27,48,.13);
+  --white-20:rgba(27,27,48,.20);
+  --white-42:rgba(27,27,48,.59);
+  --white-56:rgba(27,27,48,.72);
+  --white-70:rgba(27,27,48,.84);
+  --purple-soft:rgba(110,116,247,.09);
+  --purple-mid:rgba(110,116,247,.20);
+  --purple-line:rgba(110,116,247,.39);
+  --light-paper:#fff;
+  --light-panel:#f2f2ff;
+  --light-line:#d7d7ef;
+  --light-muted:#595b79;
+  --light-violet:#4148c4;
+}
+html[data-theme="light"] body {background:var(--base);color:var(--white)}
+html[data-theme="light"] ::selection {background:#6e74f7;color:#fff}
+
+/* Menu, announcement bar, buttons, and mobile navigation. */
+html[data-theme="light"] .announcement {background:#6e74f7;color:#fff}
+html[data-theme="light"] .announcement-pill {background:rgba(14,11,64,.23)}
+html[data-theme="light"] .site-header {background:rgba(255,255,255,.94);border-color:#e5e5f4;box-shadow:0 8px 24px rgba(33,30,90,.045)}
+html[data-theme="light"] .desktop-nav a:hover,
+html[data-theme="light"] .github-link:hover {color:#4148c4}
+html[data-theme="light"] .brand-mark span {background:#fff}
+html[data-theme="light"] .brand-mark span:first-child {background:var(--accent)}
+html[data-theme="light"] .btn-primary,
+html[data-theme="light"] .ed-action-primary {color:#fff}
+html[data-theme="light"] .btn-light {background:#fff;color:#1b1b30;box-shadow:0 3px 12px rgba(25,21,81,.09)}
+html[data-theme="light"] .btn-light:hover {box-shadow:0 10px 28px rgba(25,21,81,.16)}
+html[data-theme="light"] .btn-outline {background:rgba(255,255,255,.8);border-color:#cacae4;color:#292744}
+html[data-theme="light"] .btn-outline:hover {background:#f0efff;border-color:#767bf4}
+html[data-theme="light"] .theme-toggle {background:#f2f2ff;border-color:#dedcf2;color:#343367}
+html[data-theme="light"] .theme-toggle:hover {background:#e8e8ff;border-color:#6e74f7}
+html[data-theme="light"] .mobile-menu-button {background:#f4f3ff}
+html[data-theme="light"] .mobile-nav {background:#fff;box-shadow:0 20px 40px rgba(33,30,90,.14)}
+html[data-theme="light"] .skip-link {background:#29274b;color:#fff}
+
+/* Hero, panels, illustrations, and cards. The original logo remains intact. */
+html[data-theme="light"] .hero {background:linear-gradient(125deg,#fff 0%,#f8f9ff 48%,#f0f0ff 100%)}
+html[data-theme="light"] .hero-glow {opacity:.43;background:radial-gradient(ellipse 49% 51% at 61% 47%,rgba(110,116,247,.25) 0,rgba(110,116,247,.15) 26%,rgba(110,116,247,.04) 60%,transparent 75%)}
+html[data-theme="light"] .hero-bottom-fade {background:linear-gradient(0deg,#f8f9ff,transparent)}
+html[data-theme="light"] .eyebrow,
+html[data-theme="light"] .section-kicker,
+html[data-theme="light"] .step-index {color:var(--light-violet)}
+html[data-theme="light"] .tech-strip {background:#fff}
+html[data-theme="light"] .tech-inner strong {color:#575778}
+html[data-theme="light"] .section-intro {background:radial-gradient(ellipse 40% 30% at 83% 37%,rgba(110,116,247,.095),transparent 90%)}
+html[data-theme="light"] .feature-card {border-color:#dfdff0;background:linear-gradient(155deg,#f0efff,#fff 65%);box-shadow:0 14px 40px rgba(33,30,90,.04)}
+html[data-theme="light"] .feature-card-large {background:linear-gradient(130deg,#e5e6ff,#f6f5ff 58%,#fff)}
+html[data-theme="light"] .feature-card:hover {border-color:#9599ef;box-shadow:0 20px 48px rgba(45,41,120,.10)}
+html[data-theme="light"] .feature-icon {color:#4248bd;background:#e8e8ff}
+html[data-theme="light"] .feature-link,
+html[data-theme="light"] .text-link,
+html[data-theme="light"] .requirements span,
+html[data-theme="light"] .install-copy > p code {color:var(--light-violet)}
+html[data-theme="light"] .graphic-entity {background:#fff;border-color:#999bea;box-shadow:0 10px 30px rgba(41,38,93,.13)}
+html[data-theme="light"] .graphic-entity span {color:#24243c}
+html[data-theme="light"] .code-illus span {color:#4e4fbe}
+html[data-theme="light"] .db-ring::before {background:#535bd7}
+html[data-theme="light"] .section-experience {background:linear-gradient(90deg,#f5f4ff,#fff 65%)}
+html[data-theme="light"] .visual-shine {background:radial-gradient(circle,rgba(110,116,247,.19),rgba(110,116,247,.06) 44%,transparent 75%)}
+html[data-theme="light"] .terminal-floating,
+html[data-theme="light"] .install-terminal {background:#fff;border-color:#bdbeef;box-shadow:0 26px 72px rgba(44,41,95,.13)}
+html[data-theme="light"] .terminal-title,
+html[data-theme="light"] .install-terminal-top {background:#eeedff;border-color:#deddf5;color:#62627b}
+html[data-theme="light"] .terminal-result {background:#f1f0ff;color:#353966;border-color:#e0dffc}
+html[data-theme="light"] .visual-label {background:#fff;color:#343454;box-shadow:0 12px 27px rgba(40,39,92,.12)}
+html[data-theme="light"] .term-purple,
+html[data-theme="light"] .term-blue,
+html[data-theme="light"] .prompt-char {color:#4349c2}
+html[data-theme="light"] .terminal-dots i {background:#b8b7cf}
+html[data-theme="light"] .terminal-dots i:first-child {background:#6e74f7}
+html[data-theme="light"] .step-visual {background:radial-gradient(circle at center,#e8e8ff,#f7f7ff 65%)}
+html[data-theme="light"] .step-node,
+html[data-theme="light"] .transform-box > span {background:#fff;border-color:#b4b3ee;box-shadow:0 10px 30px rgba(38,34,102,.12)}
+html[data-theme="light"] .transform-box > span:last-child {background:#6e74f7;color:#fff}
+html[data-theme="light"] .file-icon {background:#f0efff;box-shadow:0 12px 28px rgba(38,34,102,.12)}
+html[data-theme="light"] .file-arrow {color:#fff;border-color:#fff}
+html[data-theme="light"] .install-section {background:radial-gradient(ellipse 41% 68% at 76% 52%,rgba(110,116,247,.13),transparent 80%),linear-gradient(112deg,#fff,#f8f9ff)}
+html[data-theme="light"] .install-terminal-footer {background:#f3f2ff;border-color:#dcdcf0}
+html[data-theme="light"] .prompt-circle {color:#4046b7}
+html[data-theme="light"] .copy-button {background:#f1efff;color:#3f4275}
+html[data-theme="light"] .code-line code {color:#292a43}
+html[data-theme="light"] .maker-logo-card {background:#fff;border:1px solid #e7e5f4;box-shadow:25px 27px 0 -8px rgba(110,116,247,.09),0 38px 78px rgba(40,36,90,.1)}
+html[data-theme="light"] .maker-card-tag {color:#46465b}
+html[data-theme="light"] .site-footer {background:#fff;border-color:#e6e6f4}
+
+/* Preserva o painel violeta como elemento de identidade, com texto correto nos dois temas. */
+html[data-theme="light"] .cta-panel {background:#6e74f7}
+html[data-theme="light"] .cta-panel h2,
+html[data-theme="light"] .cta-panel p,
+html[data-theme="light"] .cta-panel .light-kicker,
+html[data-theme="light"] .cta-panel .btn-purple-outline {color:#fff}
+html[data-theme="light"] .cta-panel h2 em {color:#17152c}
+html[data-theme="light"] .cta-panel .light-kicker .kicker-line {background:#fff}
+html[data-theme="light"] .cta-panel .btn-purple-outline {background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.50)}
+
+/* Swarm Cursor: progress panel and controls also follow the light theme. */
+html[data-theme="light"] .swarm-blueprint {opacity:.75;background:
+  radial-gradient(ellipse 80% 64% at 65% 48%,rgba(110,116,247,.11),transparent 75%),
+  linear-gradient(to right,rgba(110,116,247,.095) 1px,transparent 1px),
+  linear-gradient(to bottom,rgba(110,116,247,.095) 1px,transparent 1px);background-size:auto,64px 64px,64px 64px}
+html[data-theme="light"] .swarm-stage {background:rgba(255,255,255,.95);border-color:#c9c9ed;box-shadow:0 18px 60px rgba(36,34,85,.19)}
+html[data-theme="light"] .swarm-stage-top {color:#62627b}
+html[data-theme="light"] .swarm-stage-top strong {color:#424ac0}
+html[data-theme="light"] .swarm-stage-name {color:#20203a}
+html[data-theme="light"] .swarm-progress {background:#e7e7fb}
+html[data-theme="light"] .swarm-skip {background:rgba(255,255,255,.94);color:#252342;border-color:#c4c3e2}
+html[data-theme="light"] .swarm-skip:hover {background:#efedff}
+html[data-theme="light"] .swarm-skip span {color:#535bd7}
+html[data-theme="light"] .swarm-cursor svg path {stroke:#363452}
+html[data-theme="light"] .swarm-cursor-tag {color:#101020;box-shadow:0 5px 24px rgba(24,20,65,.16)}
+html[data-theme="light"] .swarm-selection {background:rgba(110,116,247,.045)}
+
+/* Complete ERD editor: all bars, tabs, panels, entities, connections, and dialogs. */
+html[data-theme="light"] .erd-playground {
+  --ed-head:#6e74f7; --ed-body:#fbfbff; --ed-panel:#fff; --ed-muted:#616380;
+  color:#21223a;background:#fff;border-color:#cbcaeb;
+  box-shadow:0 26px 70px rgba(39,37,90,.11),0 0 55px rgba(110,116,247,.06);
+}
+html[data-theme="light"] .ed-topbar {background:#fff;border-color:#e3e2f1}
+html[data-theme="light"] .ed-project-id div>span {color:#66667e}
+html[data-theme="light"] .ed-project-icon {background:#6066dc;color:#fff}
+html[data-theme="light"] .ed-live-indicator {color:#4148bd}
+html[data-theme="light"] .ed-icon-button {background:#f1f0ff;color:#343452;border-color:#d9d7ee}
+html[data-theme="light"] .ed-icon-button:hover {background:#e6e5ff;border-color:#9296ec}
+html[data-theme="light"] .ed-toolbar {background:#f8f8ff;border-color:#e6e5f3}
+html[data-theme="light"] .ed-create-form label,
+html[data-theme="light"] .ed-hint {color:#595b77}
+html[data-theme="light"] .ed-create-form input {background:#fff;color:#26253c;border-color:#cfcde5}
+html[data-theme="light"] .ed-create-form input::placeholder {color:#8585a0}
+html[data-theme="light"] .ed-create-form input:focus {border-color:#6e74f7}
+html[data-theme="light"] .ed-action-primary {background:#575dda;color:#fff}
+html[data-theme="light"] .ed-action-primary:hover {background:#4248bd}
+html[data-theme="light"] .ed-action-secondary {background:#ebeaff;border-color:#cccbeb;color:#3e4093}
+html[data-theme="light"] .ed-action-secondary:hover,
+html[data-theme="light"] .ed-action-secondary.is-active {background:#dcdcfc;border-color:#888ded}
+html[data-theme="light"] .ed-tool-divider {background:#d5d3e9}
+html[data-theme="light"] .ed-tabs {background:#fff;border-color:#e2e2f0}
+html[data-theme="light"] .ed-tab {color:#63647e}
+html[data-theme="light"] .ed-tab:hover {color:#35379f}
+html[data-theme="light"] .ed-tab.active {color:#4148bd;border-bottom-color:#6e74f7}
+html[data-theme="light"] .ed-tab-right {color:#77778c}
+html[data-theme="light"] .ed-scroll {background:#fafaff;scrollbar-color:#c3c3df #f3f3ff}
+html[data-theme="light"] .ed-workspace {background-color:#fafaff;background-image:radial-gradient(circle,rgba(95,96,162,.23) 1px,transparent 1.2px)}
+html[data-theme="light"] .ed-workspace::before {background:radial-gradient(ellipse at 50% 40%,rgba(110,116,247,.07),transparent 60%)}
+html[data-theme="light"] .ed-edge-line {stroke:#7476ae}
+html[data-theme="light"] .ed-edge-end {fill:#fff;stroke:#6568a1}
+html[data-theme="light"] .ed-edge-cardinality {fill:#535778}
+html[data-theme="light"] .ed-rel-diamond {fill:#5459c8;stroke:#7a7ff5}
+html[data-theme="light"] .ed-diamond-hit:hover .ed-rel-diamond {fill:#4248bd}
+html[data-theme="light"] .ed-rel-label {fill:#fff}
+html[data-theme="light"] .ed-draft-line {stroke:#696fe1}
+html[data-theme="light"] .ed-node {background:#fff;border-color:#b5b4dd;box-shadow:0 12px 28px rgba(37,35,90,.13)}
+html[data-theme="light"] .ed-node.ed-selected {border-color:#6e74f7;box-shadow:0 0 0 3px rgba(110,116,247,.19),0 18px 40px rgba(38,36,91,.17)}
+html[data-theme="light"] .ed-node-head {background:linear-gradient(145deg,#6e74f7,#5259d0);color:#fff}
+html[data-theme="light"] .ed-node-badge {color:#fff}
+html[data-theme="light"] .ed-node-count {color:#fff;background:rgba(255,255,255,.20)}
+html[data-theme="light"] .ed-node-button {color:#fff;background:rgba(255,255,255,.16)}
+html[data-theme="light"] .ed-node-button:hover {background:rgba(255,255,255,.32)}
+html[data-theme="light"] .ed-node-row {color:#33354d;border-color:#ebebf4}
+html[data-theme="light"] .ed-node-row.ed-pk {background:#f0efff}
+html[data-theme="light"] .ed-field-mark {color:#4148bd}
+html[data-theme="light"] .ed-field-type {color:#696b84}
+html[data-theme="light"] .ed-node-add-field {background:#fff;color:#4148bd}
+html[data-theme="light"] .ed-node-add-field:hover {background:#f0efff}
+html[data-theme="light"] .ed-port {background:#7980eb;border-color:#fff}
+html[data-theme="light"] .ed-port:hover {background:#4148bd}
+html[data-theme="light"] .ed-canvas-foot {background:#fff;border-color:#e5e4f2;color:#696b84}
+html[data-theme="light"] .ed-panel-intro {background:#fff}
+html[data-theme="light"] .ed-panel-intro span {color:#64657e}
+html[data-theme="light"] .ed-rel-panel {background-color:#fafaff;background-image:radial-gradient(circle,rgba(110,116,247,.18) 1px,transparent 1.2px)}
+html[data-theme="light"] .ed-rel-table {background:#fff;border-color:#c2c1e5;box-shadow:0 12px 30px rgba(35,35,87,.08)}
+html[data-theme="light"] .ed-rel-table h4 {background:#6368db;color:#fff}
+html[data-theme="light"] .ed-rel-table-row {color:#33354d;border-color:#e5e5f2}
+html[data-theme="light"] .ed-rel-table-row strong {color:#4148bd}
+html[data-theme="light"] .ed-rel-table-row em {color:#6c6d84}
+html[data-theme="light"] .ed-rel-empty {color:#5e607b}
+html[data-theme="light"] .ed-sql-panel {background:#fff}
+html[data-theme="light"] .ed-sql-top {border-color:#e4e3ef}
+html[data-theme="light"] .ed-sql-top span {color:#666780}
+html[data-theme="light"] .ed-code {color:#363675;background:#fbfbff}
+html[data-theme="light"] .ed-showcase-foot p strong {color:#24243c}
+html[data-theme="light"] .ed-dialog-backdrop {background:rgba(25,24,55,.42)}
+html[data-theme="light"] .ed-dialog-card {background:#fff;color:#262640;border-color:#c8c6ea;box-shadow:0 30px 100px rgba(29,26,70,.25)}
+html[data-theme="light"] .ed-dialog-heading {border-color:#e3e3f1}
+html[data-theme="light"] .ed-dialog-heading span {color:#494ac1}
+html[data-theme="light"] .ed-dialog-x {color:#34354e;background:#f0efff}
+html[data-theme="light"] .ed-dialog-x:hover {background:#e4e3fc}
+html[data-theme="light"] .ed-dialog-label,
+html[data-theme="light"] .ed-dialog-fields-head>span,
+html[data-theme="light"] .ed-dialog-check,
+html[data-theme="light"] .ed-dialog-help {color:#595b76}
+html[data-theme="light"] .ed-dialog-input {background:#fff;color:#27273f;border-color:#c9c8e4}
+html[data-theme="light"] .ed-dialog-input:focus {border-color:#6e74f7}
+html[data-theme="light"] .ed-dialog-input::placeholder {color:#88879d}
+html[data-theme="light"] .ed-dialog-remove {background:#f2f0ff;color:#353654;border-color:#d8d6eb}
+html[data-theme="light"] .ed-dialog-remove:hover {background:#eae3fb}
+html[data-theme="light"] .ed-dialog-error {color:#a52c52}
+html[data-theme="light"] .ed-dialog-actions {border-color:#e3e2f0}
+html[data-theme="light"] .ed-dialog-danger {color:#a72b50;background:#fff2f5;border-color:#f0bacb}
+html[data-theme="light"] .ed-dialog-danger:hover {background:#ffe2e9}
