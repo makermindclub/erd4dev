@@ -1,62 +1,48 @@
-<p align="center">
-  <a href="https://github.com/makermindclub/erd4dev">
-    <img src="https://raw.githubusercontent.com/makermindclub/erd4dev/main/erd4dev-logo.jpeg" alt="ERD4Dev — database modeling for Laravel" width="200" height="200">
-  </a>
-</p>
-
 # ERD4Dev
 
-[![Packagist: makermind/erd4dev](https://img.shields.io/badge/Packagist-makermind%2Ferd4dev-F28D1A?style=flat-square)](https://packagist.org/packages/makermind/erd4dev)
-[![Total Downloads](https://img.shields.io/packagist/dt/makermind/erd4dev.svg?style=flat-square)](https://packagist.org/packages/makermind/erd4dev)
-[![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=flat-square)](https://www.php.net/)
-[![Laravel](https://img.shields.io/badge/Laravel-12%2B-FF2D20?style=flat-square)](https://laravel.com/)
-[![Livewire](https://img.shields.io/badge/Livewire-4.3%2B-FB70A9?style=flat-square)](https://livewire.laravel.com/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/makermindclub/erd4dev/blob/main/LICENSE)
+ER and relational diagram editor for Laravel, with JSON/SQL import, database schema snapshots, ER-to-relational conversion, SQL export and Laravel Blueprint drafts.
 
-Visual database modeling for [Laravel](https://laravel.com/), built with [Livewire](https://livewire.laravel.com/). Design entity-relationship diagrams, convert them into relational models, and export SQL or Laravel Blueprint drafts directly from your application.
+Requires PHP 8.3+, Laravel 12 and Livewire 4.3+. Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
 
-Maintained by [Makermind](https://github.com/makermindclub).
-
-[Installation](#installation) · [Access control](#access-through-the-application-server) · [Modeling and importing](#modeling-and-importing) · [Blueprint drafts](#blueprint-drafts)
-
-## Features
-
-- Design ER diagrams and generate linked relational models.
-- Import and export diagram JSON, import SQL, or read the current database connection schema metadata.
-- Edit tables, columns, keys and relationships on a visual canvas.
-- Export SQL, diagram images and drafts for [Laravel Blueprint](https://github.com/laravel-shift/blueprint).
-
-## Requirements
-
-| Dependency | Version |
-| --- | --- |
-| PHP | 8.3+ |
-| Laravel | 12+ |
-| Livewire | 4.3+ |
-
-Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
+Developed by Professor Giovani's study group. This is an independent project, with no institutional affiliation to IFRN. Distributed under the MIT license; see `LICENSE` and third-party notices in `licenses/`.
 
 ## Installation
 
-Install from [Packagist](https://packagist.org/packages/makermind/erd4dev) in your Laravel application. ERD4Dev requires WireFlow exactly at its published version `0.2.4-alpha`:
+The package is not published on Packagist yet. To install locally, add a Composer path repository pointing to this directory:
 
-```bash
-composer require --dev makermind/erd4dev getartisanflow/wireflow:0.2.4-alpha
+```json
+{
+    "repositories": [
+        {"type": "path", "url": "/path/to/erd4dev"}
+    ]
+}
 ```
 
-Tagged releases are published automatically after tests pass on `main`. Composer selects the latest compatible release. To follow unreleased development code instead, use `makermind/erd4dev:dev-main`.
+WireFlow currently requires explicit acceptance of its alpha release. The project does not need to lower its global minimum stability:
 
-The WireFlow argument explicitly allows its alpha release in the consuming application. Replace any existing `^0.1.2@alpha` requirement in the application; it conflicts with `0.2.4-alpha`.
+```bash
+composer require --dev makermind/erd4dev:@dev getartisanflow/wireflow:^0.1.2@alpha
+```
 
-Open `/erd` at the address and port already used by your application (for example, `http://localhost:8000/erd`). The package is discovered by Laravel automatically. No additional server, restart, Vite, asset publication or installation command is needed for normal local use.
+Open `/erd` on your Laravel application. Laravel discovers the package automatically and serves the editor, compiled assets and Livewire updates through the application's routes.
+
+With `APP_ENV=local`, access does not require login and the package creates its diagram storage table on the first ERD request if it does not exist. It uses the application's configured database; that database must already exist and be reachable. No application migrations are run automatically. All package routes, including compiled assets, examples and panel updates, live under `/erd`.
 
 `erd:install` remains an optional command to publish compiled assets and the package migration. Its `--migrate` flag runs **all pending application migrations**. Outside the local environment, publish and run the migration explicitly. Existing route caches must be regenerated after installing a package; persistent application workers need to load the new code as usual.
 
+After publication, a stable ERD4Dev release will still require explicitly accepting the WireFlow alpha dependency until an upstream stable version is adopted.
+
 ## Access through the application server
 
-ERD4Dev has no user accounts or per-user diagram ownership. Outside the `local` environment, its middleware requires the host application to authorize the `erd.access` Laravel Gate before allowing access to the editor, including Livewire updates. This is an access check for the entire shared workspace; it does not provide user management. Local development does not require configuring this Gate.
+Outside `APP_ENV=local`, the application must grant the `erd.access` Gate:
 
-To publish the optional package configuration:
+```php
+use Illuminate\Support\Facades\Gate;
+
+Gate::define('erd.access', fn ($user) => $user->can('manage-diagrams'));
+```
+
+The permission in this example must be implemented by the host application. Authorization is checked again on Livewire updates. The package does not supply user registration or authentication.
 
 ```bash
 php artisan vendor:publish --tag=erd-config
@@ -66,13 +52,11 @@ Configuration controls the domain, middleware and storage table. The `/erd` pref
 
 ## Modeling and importing
 
-JSON import automatically detects ER diagrams and relational models exported by the editor, preserving their structure and opening the appropriate board. Invalid references are rejected before creating a project. JSON files are limited to 2 MB.
-
 Start with an ER model and generate a linked relational model, or import SQL/database metadata directly into an independent editable relational board. Structural changes to linked models belong in the ER source.
 
-SQL is parsed as text and never executed. Database import reads schema metadata from connections configured in `config/database.php`. Supported Laravel native drivers (SQLite, MySQL/MariaDB, PostgreSQL and SQL Server). Only SQLite has been tested against a real database.
+SQL is parsed as text and never executed. Database import reads schema metadata from connections configured in `config/database.php`; passwords are not entered in the browser. Supported native drivers are SQLite, MySQL/MariaDB, PostgreSQL and SQL Server, with a 250-table limit. SQLite has been tested against a real database; the remaining drivers still require live-server validation. Oracle is supported through SQL import, not connection import.
 
-Snapshots contain tables, columns, primary/unique keys and foreign keys. Data, defaults, checks, views, routines, ordinary indexes, collations and referential actions are outside the diagram representation. Unsupported structures are reported. Editing a snapshot changes only the saved diagram, never the source tables or records. Diagram records themselves use the host application's configured storage database.
+Snapshots contain tables, columns, primary/unique keys and foreign keys. Data, defaults, checks, views, routines, ordinary indexes, collations and referential actions are outside the diagram representation. SQLite snapshots skip partial UNIQUE indexes and report them. Conditional indexes on other drivers still require verification against the source schema. Editing a snapshot changes only the saved diagram, never the source tables or records. Diagram records themselves use the host application's configured storage database.
 
 On imported boards, **New table** creates a table with an id primary key. Rename tables and columns, add/remove columns, and set PK/UNIQUE keys directly on the canvas. Column types, sizes, enums and nullability are editable in their rows. Enum values retain embedded commas, spaces, empty strings and zero values.
 
@@ -98,13 +82,15 @@ The result appears in a dismissible dialog with collapsed warnings and a copyabl
 php artisan blueprint:build blueprints/draft-42-20261103-123456123456.yaml --only=models,migrations
 ```
 
-The Blueprint package is included. Generating a draft only writes YAML. It does not automatically generate PHP files or run migrations. Database configuration, review and migration execution remain the user's responsibility. Drafts describe full schemas, not migration diffs against existing tables.
+Generating a draft writes YAML from the saved relational model. Run the command above from the host application's root to generate PHP models and full table-creation migrations. Blueprint can overwrite existing model files, including the application's user model. Review the generated files before running migrations, especially when the source was an existing database.
 
-Actual table names are preserved in `meta.table`. Missing id/timestamp columns are not implicitly added. Composite PK/UNIQUE keys are represented as indexes. Composite FKs and cross-schema references retain their columns but omit constraints that Blueprint cannot faithfully represent, with explicit warnings. Composite or nonstandard primary keys require reviewing the Eloquent model.
+Drafts preserve imported table names, explicit columns and PK/UNIQUE keys. When a relational model comes from an ER diagram, names with spaces or punctuation are normalized in the draft, with warnings that list each change. Referenced tables are generated before dependent tables where possible. Composite FKs, FKs to schema-qualified tables and FKs on the literal `id` column retain their columns and require manual constraints. Circular FKs may require a later migration. Review the generated Eloquent model for nonstandard primary keys, timestamps and relationship conventions.
 
-Reserved Blueprint names, incompatible identifiers, unsupported custom types and unrepresentable enums block draft generation with an explanation; partial drafts are not saved.
+Reserved names, incompatible identifiers, unsupported custom types and enums Blueprint cannot preserve block draft generation with an explanation. SQL import preserves unsigned columns and common auto-increment declarations. Identity options, generated expressions, defaults, checks and referential actions remain outside the draft.
 
 ## Development
+
+This repository contains the Composer package. The Laravel demonstration application and frontend build tooling are maintained in [ERD-laravel-package](https://github.com/arthur-bpv/ERD-laravel-package).
 
 Run package integration tests from this repository root:
 
@@ -115,22 +101,4 @@ composer test
 
 The package's development configuration accepts alpha dependencies and prefers stable versions. Consuming applications must still explicitly accept the WireFlow alpha release as shown above; dependency stability settings are not inherited.
 
-Include the compiled `dist/erd.js` and `dist/erd.css` in releases; consumers do not need Node.js or a frontend build.
-
-## Releases
-
-Develop changes on `develop` and open a pull request into `main`. The **Test and release** workflow tests Laravel 12 and 13 on pull requests and pushes to either branch. Every push to `main`, including a merge from `develop`, publishes a stable Git tag and a GitHub release only after both test jobs pass. The first tag is `v0.1.0`. Subsequent releases inspect commit messages since the latest stable tag: `feat:` or `feat(scope):` increments minor, a conventional commit with `!:` or a `BREAKING CHANGE:` footer increments major, and other changes increment patch. The highest increment wins. Direct pushes to `main` also publish a release, so use pull requests for reviewed changes.
-
-Use conventional commit messages on `develop`; with squash merges, include the desired prefix in the final squash commit message. **Actions → Test and release → Run workflow** on `main` can bootstrap or retry publication. Re-running a workflow for a commit that already has a release reuses its tag instead of creating another version. Existing tags are never moved. Versions come from Git tags; do not add a `version` field to `composer.json`.
-
-Keep the Packagist GitHub webhook enabled. For an explicit update request on each release, add repository Actions secrets **PACKAGIST_USERNAME** and **PACKAGIST_TOKEN**, using a Packagist account with maintainer access. The token is available in the Packagist account profile. Without these secrets, the workflow relies on the existing webhook and emits a warning.
-
-After publishing, a separate job polls the public Composer metadata for the exact tag, commit and WireFlow requirement. If the release is not visible after approximately 15 minutes plus network time, that job fails with an explanation. The GitHub release remains published. Check **View Log** on Packagist and re-run the workflow after fixing synchronization; re-running is safe. Creating a tag does not bypass Packagist propagation or the consuming application's alpha dependency restrictions.
-
-## Support and contributions
-
-Report bugs and request features through [GitHub Issues](https://github.com/makermindclub/erd4dev/issues). Include your PHP, Laravel and Livewire versions and steps to reproduce the problem. Pull requests are welcome; run the integration tests before submitting changes.
-
-## License
-
-ERD4Dev is distributed under the [MIT license](https://github.com/makermindclub/erd4dev/blob/main/LICENSE). Third-party license notices are available in [`licenses/`](https://github.com/makermindclub/erd4dev/tree/main/licenses).
+Include the compiled `dist/erd.js` and `dist/erd.css` in releases; consumers do not need Node.js or a frontend build. Rebuild these assets in the demonstration repository using `npm run build:package` and copy its `packages/laravel-erd/dist/` contents here. License notices are in `licenses/`.

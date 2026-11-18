@@ -38,6 +38,7 @@ x-data="{
     @relational-edit-rejected.window="showNotice($event.detail.message, 'warning')"
     @relational-dialect-warning.window="showDialectNotice($event.detail.message)">
     <x-erd::board-header mode="relational" :diagram-name="$diagramName" :dialect="$dialect" :has-draft-notice="(bool) ($draftPath || $draftError)" :source-diagram-id="$sourceDiagramId"
+        :show-laravel-tables-toggle="$hideLaravelTables || $this->laravelTableIds !== []" :hide-laravel-tables="$hideLaravelTables"
         :source-diagram-name="$sourceDiagramName" :tables-count="count($tables)"
         :columns-count="collect($tables)->sum(fn (array $table) => count($table['columns']))"
         :foreign-keys-count="count($foreignKeys)" />
@@ -108,7 +109,7 @@ x-data="{
                 @if ($draftError)<p role="alert">{{ $draftError }}</p>@endif
                 @if ($draftPath)
                     <div role="status"><p>File saved to <code class="rel-wrap-path">{{ $draftPath }}</code>.</p></div>
-                    <p>Track the directory in version control: <code>blueprints/</code>. After reviewing the draft, generate models and migrations with:</p>
+                    <p>Track <code>blueprints/</code> in version control. Review the draft before building it. Blueprint can overwrite existing model files.</p>
                     <pre class="rel-wrap-path">php artisan blueprint:build {{ $draftPath }} --only=models,migrations</pre>
                     <button type="button" class="board-toolbar-button" x-data="{ copied: false, failed: false }" @click="window.copyBoardText(@js('php artisan blueprint:build '.$draftPath.' --only=models,migrations')).then(() => copied = true).catch(() => failed = true)" x-text="failed ? 'Select and copy the command above' : (copied ? 'Command copied' : 'Copy command')">Copy command</button>
                     <p class="rel-structure-help">The database was not changed. You are responsible for running migrations.</p>
@@ -173,10 +174,10 @@ x-data="{
 
 
     @if ($warnings)
-        <aside class="rel-import-warnings z-10 border-b px-5 py-2 text-xs">
+        <aside class="z-10 border-b border-amber-400/15 bg-amber-400/5 px-5 py-2 text-xs text-amber-200">
             <details>
-                <summary class="cursor-pointer font-medium">{{ count($warnings) }} {{ count($warnings) === 1 ? 'warning' : 'warnings' }} to review</summary>
-                <ul class="mt-2 space-y-1 pl-5">
+                <summary class="cursor-pointer font-medium">{{ count($warnings) }} decisions require manual review</summary>
+                <ul class="mt-2 space-y-1 pl-5 text-amber-100/75">
                     @foreach ($warnings as $warning)
                         <li wire:key="warning-{{ md5($warning) }}" class="list-disc">{{ $warning }}</li>
                     @endforeach

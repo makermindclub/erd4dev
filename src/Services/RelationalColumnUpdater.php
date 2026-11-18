@@ -53,6 +53,11 @@ final class RelationalColumnUpdater
     {
         foreach ($tables as $table => $entry) {
             foreach ($entry['columns'] as $index => $column) {
+                try {
+                    $column = DataTypeCatalog::parseDeclaration($column);
+                } catch (InvalidArgumentException) {
+                    // Keep the existing dialect fallback for unsupported legacy declarations.
+                }
                 $column['type'] = DataTypeCatalog::resolve($dialect, $column['type'] ?? 'varchar');
                 $tables[$table]['columns'][$index] = DataTypeCatalog::normalize($dialect, $column);
             }

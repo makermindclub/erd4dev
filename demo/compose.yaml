@@ -1,0 +1,18 @@
+services:
+  erd4dev-demo:
+    build:
+      context: ..
+      dockerfile: demo/Dockerfile
+    ports:
+      - "${ERD4DEV_DEMO_PORT:-8080}:8000"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /var/lib/erd4dev/database.sqlite
+      SESSION_DRIVER: file
+    volumes:
+      - ..:/workspace/erd4dev
+      - ./storage:/var/lib/erd4dev
+      - ./blueprints:/app/blueprints
+    init: true

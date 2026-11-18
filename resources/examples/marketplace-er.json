@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "customers",
-      "name": "Customer",
+      "name": "customer",
       "x": 40,
       "y": 300,
       "attributes": [
@@ -37,7 +37,7 @@
     },
     {
       "id": "orders",
-      "name": "Order",
+      "name": "order",
       "x": 400,
       "y": 300,
       "attributes": [
@@ -69,7 +69,7 @@
     },
     {
       "id": "products",
-      "name": "Product",
+      "name": "product",
       "x": 800,
       "y": 300,
       "attributes": [
@@ -101,7 +101,7 @@
     },
     {
       "id": "categories",
-      "name": "Category",
+      "name": "category",
       "x": 1160,
       "y": 60,
       "attributes": [
@@ -121,7 +121,7 @@
     },
     {
       "id": "addresses",
-      "name": "Delivery Address",
+      "name": "delivery_address",
       "x": 40,
       "y": 680,
       "attributes": [
@@ -159,7 +159,7 @@
     },
     {
       "id": "payments",
-      "name": "Payment",
+      "name": "payment",
       "x": 400,
       "y": 680,
       "attributes": [
@@ -197,7 +197,7 @@
     },
     {
       "id": "suppliers",
-      "name": "Supplier",
+      "name": "supplier",
       "x": 1160,
       "y": 680,
       "attributes": [
@@ -236,7 +236,7 @@
     },
     {
       "id": "order_delivery_address",
-      "name": "ships to",
+      "name": "ships_to",
       "from": "orders",
       "fromAttr": "",
       "to": "addresses",
@@ -292,7 +292,7 @@
     },
     {
       "id": "product_category",
-      "name": "classified as",
+      "name": "classified_as",
       "from": "products",
       "fromAttr": "",
       "to": "categories",
@@ -339,7 +339,7 @@
     },
     {
       "id": "order_payment",
-      "name": "settled by",
+      "name": "settled_by",
       "from": "payments",
       "fromAttr": "",
       "to": "orders",

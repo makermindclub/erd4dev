@@ -188,6 +188,13 @@ final class SqlDiagramImporter
         $unique = ! $primary && preg_match('/\bUNIQUE\b/', $syntax) === 1;
         $column['nullable'] = ! $primary && ! preg_match('/\bNOT\s+NULL\b/', $syntax);
         $column['key'] = $primary ? 'PK' : ($unique ? 'UQ' : '');
+        if (preg_match('/\bUNSIGNED\b/', $syntax)) {
+            $column['unsigned'] = true;
+        }
+        if (in_array($nativeType, ['serial', 'smallserial', 'bigserial'], true)
+            || preg_match('/\b(?:AUTO_INCREMENT|AUTOINCREMENT)\b/', $syntax)) {
+            $column['autoIncrement'] = true;
+        }
         if ($primary) {
             $this->constraints[] = ['table' => $table, 'kind' => 'PRIMARY', 'columns' => [$name]];
         } elseif ($unique) {
@@ -199,8 +206,8 @@ final class SqlDiagramImporter
             $referencePosition++;
             $this->reference($table, [$name], $tail, $referencePosition);
         }
-        if (preg_match('/\b(?:DEFAULT|CHECK|GENERATED|IDENTITY|AUTO_INCREMENT|AUTOINCREMENT|COLLATE)\b/', $syntax)) {
-            $this->warnings[] = 'Defaults, checks, automatic generation and collations are not represented in the diagram.';
+        if (preg_match('/\b(?:DEFAULT|CHECK|GENERATED|IDENTITY|COLLATE)\b/', $syntax)) {
+            $this->warnings[] = 'Defaults, checks, identity clauses, generated columns and collations are not represented in the diagram.';
         }
         $this->tables[$table]['columns'][] = $column;
     }

@@ -5,7 +5,9 @@ namespace Makermind\Erd4dev\Livewire;
 use ArtisanFlow\WireFlow\Concerns\WithWireFlow;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -73,6 +75,12 @@ class RelationalBoard extends Component
     public bool $showSql = false;
 
     #[Locked]
+    public ?string $databaseImportConnection = null;
+
+    #[Locked]
+    public bool $hideLaravelTables = false;
+
+    #[Locked]
     public string $sqlPreview = '';
 
     #[Locked]
@@ -97,6 +105,9 @@ class RelationalBoard extends Component
         }
 
         $this->sourceFingerprint = $data['sourceFingerprint'] ?? null;
+        if (($data['origin']['type'] ?? null) === 'database') {
+            $this->databaseImportConnection = $data['origin']['connection'] ?? null;
+        }
         $this->fillFromData($data);
     }
 
@@ -243,7 +254,7 @@ class RelationalBoard extends Component
         $diagram = Diagram::query()->whereKey($this->diagramId)
             ->where('type', Diagram::TYPE_RELATIONAL)->firstOrFail();
         try {
-            $draft = $generator->generate($diagram->data ?? []);
+            $draft = $generator->generate($diagram->data ?? [], fromEr: $diagram->source_diagram_id !== null);
             $this->draftPath = $writer->write($diagram->id, $draft['yaml']);
             $this->draftWarnings = $draft['warnings'];
         } catch (InvalidArgumentException $exception) {
@@ -517,7 +528,10 @@ class RelationalBoard extends Component
 
     public function buildNodes(): array
     {
-        return array_map(fn (array $table): array => RelationalTableNodeProjector::node($table, $this->sourceDiagramId === null), $this->tables);
+        $hiddenIds = $this->hideLaravelTables ? $this->laravelTableIds : [];
+
+        return array_map(fn (array $table): array => RelationalTableNodeProjector::node($table, $this->sourceDiagramId === null)
+            + ['hidden' => isset($hiddenIds[$table['id']])], $this->tables);
     }
 
     public function buildEdges(): array
@@ -535,6 +549,55 @@ class RelationalBoard extends Component
         return $edges;
     }
 
+    private function buildVisibleEdges(): array
+    {
+        $hiddenIds = $this->hideLaravelTables ? $this->laravelTableIds : [];
+
+        return array_values(array_filter($this->buildEdges(), fn (array $edge): bool => ! isset($hiddenIds[$edge['source']])
+            && ! isset($hiddenIds[$edge['target']])));
+    }
+
+    #[Computed]
+    public function laravelTableIds(): array
+    {
+        if ($this->databaseImportConnection === null) {
+            return [];
+        }
+
+        $names = [
+            'cache', 'cache_locks', 'failed_jobs', 'job_batches', 'jobs', 'migrations',
+            'password_reset_tokens', 'sessions', Str::afterLast((new Diagram)->getTable(), '.'),
+        ];
+        $prefix = config("database.connections.{$this->databaseImportConnection}.prefix", '');
+        $names = array_map(fn (string $name): string => $prefix.$name, $names);
+
+        $ids = [];
+        foreach ($this->tables as $table) {
+            if (in_array(Str::afterLast($table['name'], '.'), $names, true)) {
+                $ids[$table['id']] = true;
+            }
+        }
+
+        return $ids;
+    }
+
+    public function toggleLaravelTables(): void
+    {
+        if ($this->laravelTableIds === [] && ! $this->hideLaravelTables) {
+            return;
+        }
+
+        $this->hideLaravelTables = ! $this->hideLaravelTables;
+        foreach (array_keys($this->laravelTableIds) as $id) {
+            if ($this->hideLaravelTables) {
+                $this->flowHideNode($id);
+            } else {
+                $this->flowShowNode($id);
+            }
+        }
+        $this->flowFromObject(['edges' => $this->buildVisibleEdges()]);
+    }
+
     public function render(RelationalDiagramDriftAnalyzer $drift): View
     {
         $report = $this->sourceDiagramId === null ? ['outdated' => false, 'changes' => []] : $drift->report($this->sourceDiagramData(), [
@@ -547,7 +610,7 @@ class RelationalBoard extends Component
 
         return view('erd::livewire.relational-board', [
             'nodes' => $this->buildNodes(),
-            'edges' => $this->buildEdges(),
+            'edges' => $this->buildVisibleEdges(),
             'isOutdated' => $report['outdated'],
             'drift' => $report['changes'],
         ]);
@@ -646,11 +709,14 @@ class RelationalBoard extends Component
                 'dimensions' => $node['dimensions'],
                 'data' => $node['data'],
             ]);
+            if ($node['hidden']) {
+                $this->flowHideNode($node['id']);
+            }
         }
 
         // Edges may change handles or disappear after a column edit. Restore
         // them without replacing the live nodes.
-        $this->flowFromObject(['edges' => $this->buildEdges()]);
+        $this->flowFromObject(['edges' => $this->buildVisibleEdges()]);
     }
 
     public function updateColumnCustomType(string $tableId, string $columnId, string $value): void
