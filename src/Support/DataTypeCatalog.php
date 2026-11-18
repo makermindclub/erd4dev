@@ -2,6 +2,8 @@
 
 namespace Makermind\Erd4dev\Support;
 
+use InvalidArgumentException;
+
 class DataTypeCatalog
 {
     /** Types with length or precision and scale. */
@@ -138,6 +140,33 @@ class DataTypeCatalog
             in_array($type, self::DECIMAL_TYPES, true) => 'decimal',
             default => null,
         };
+    }
+
+    public static function parseDeclaration(array $column): array
+    {
+        $raw = strtolower(trim((string) ($column['type'] ?? 'varchar')));
+        if (! preg_match('/^([a-z]+)(?:\s*\(\s*(\d+)\s*(?:,\s*(\d+)\s*)?\))?$/', $raw, $matches)) {
+            throw new InvalidArgumentException("Invalid column type: {$raw}.");
+        }
+        $column['type'] = match ($matches[1]) {
+            'int' => 'integer',
+            'bool' => 'boolean',
+            'string' => 'varchar',
+            default => $matches[1],
+        };
+        if (isset($matches[2])) {
+            $kind = self::kind($column['type']);
+            if ($kind === 'length' && ! isset($matches[3])) {
+                $column['length'] ??= (int) $matches[2];
+            } elseif ($kind === 'decimal' && isset($matches[3])) {
+                $column['precision'] ??= (int) $matches[2];
+                $column['scale'] ??= (int) $matches[3];
+            } else {
+                throw new InvalidArgumentException("The size of type {$raw} is invalid.");
+            }
+        }
+
+        return $column;
     }
 
     /** Resolve a type to itself or the closest available equivalent. */

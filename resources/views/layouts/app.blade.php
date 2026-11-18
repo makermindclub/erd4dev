@@ -27,30 +27,18 @@
 
         </script>
 
-        @if (config('erd.development_assets'))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @else
-            <link rel="stylesheet" href="{{ route('erd.assets', ['file' => 'erd.css']) }}">
-            <script src="{{ route('erd.assets', ['file' => 'erd.js']) }}"></script>
-        @endif
+        <link rel="stylesheet" href="{{ route('erd.assets', ['file' => 'erd.css']) }}">
+        <script src="{{ route('erd.assets', ['file' => 'erd.js']) }}"></script>
 
         @livewireStyles
     </head>
     <body>
         {{ $slot }}
 
-        @if (config('erd.development_assets'))
-            {!! str_replace(
-                json_encode(url(app('livewire')->getUpdateUri())),
-                json_encode(route('erd.update')),
-                \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scriptConfig()
-            ) !!}
-        @else
-            {!! str_replace(
-                'data-update-uri="'.url(app('livewire')->getUpdateUri()).'"',
-                'data-update-uri="'.route('erd.update').'"',
-                \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts(['url' => route('erd.assets', ['file' => 'livewire.js'])])
-            ) !!}
-        @endif
+        {!! str_replace(
+            'data-update-uri="'.url(app('livewire')->getUpdateUri()).'"',
+            'data-update-uri="'.route('erd.update').'"',
+            \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts(['url' => route('erd.assets', ['file' => 'livewire.js'])])
+        ) !!}
     </body>
 </html>

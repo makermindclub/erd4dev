@@ -102,7 +102,7 @@
                     </label>
                     <p>Configure the connection and credentials in your Laravel project before importing.</p>
                 @elseif ($importFormat === 'sql')
-                    <p>Tables, columns and keys are imported as an editable relational model. Data, routines, defaults, checks and automatic generation are omitted. Single and composite PRIMARY, UNIQUE and FOREIGN keys are recognized in CREATE TABLE and ALTER TABLE statements; UNIQUE indexes are also imported.</p>
+                    <p>Tables, columns and keys are imported as an editable relational model. Data, routines, defaults, checks and generated expressions are omitted. Single and composite PRIMARY, UNIQUE and FOREIGN keys are recognized in CREATE TABLE and ALTER TABLE statements; UNIQUE indexes are also imported.</p>
                     <label class="er-import-drop">
                         <span>Select SQL file</span>
                         <small>Maximum 2 MB</small>
