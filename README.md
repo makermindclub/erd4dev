@@ -13,9 +13,9 @@
 [![Livewire](https://img.shields.io/badge/Livewire-4.3%2B-FB70A9?style=flat-square)](https://livewire.laravel.com/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/makermindclub/erd4dev/blob/main/LICENSE)
 
-Visual database modeling for [Laravel](https://laravel.com/), built with [Livewire](https://livewire.laravel.com/). Design entity-relationship diagrams, convert them into relational models, and export SQL or Laravel Blueprint drafts directly from your application.
+Visual database modeling for [Laravel](https://laravel.com/), built with [Livewire](https://livewire.laravel.com/) and [WireFlow](https://github.com/getartisanflow/wireflow). Design entity-relationship diagrams, convert them into relational models, and export SQL or [Laravel Shift Blueprint](https://blueprint.laravelshift.com/docs/) drafts directly from your application.
 
-Maintained by [Makermind](https://github.com/makermindclub).
+ERD4Dev is an open-source Composer package maintained by [Makermind](https://github.com/makermindclub) and developed in the [erd4dev repository](https://github.com/makermindclub/erd4dev).
 
 [Installation](#installation) · [Access control](#access-through-the-application-server) · [Modeling and importing](#modeling-and-importing) · [Blueprint drafts](#blueprint-drafts)
 
@@ -24,7 +24,7 @@ Maintained by [Makermind](https://github.com/makermindclub).
 - Design ER diagrams and generate linked relational models.
 - Import and export diagram JSON, import SQL, or read the current database connection schema metadata.
 - Edit tables, columns, keys and relationships on a visual canvas.
-- Export SQL, diagram images and drafts for [Laravel Blueprint](https://github.com/laravel-shift/blueprint).
+- Export SQL, diagram images and drafts for [Laravel Shift Blueprint](https://blueprint.laravelshift.com/docs/).
 
 ## Requirements
 
@@ -38,7 +38,7 @@ Composer package: `makermind/erd4dev`. PHP namespace: `Makermind\Erd4dev`.
 
 ## Installation
 
-Install from [Packagist](https://packagist.org/packages/makermind/erd4dev) in your Laravel application. ERD4Dev requires WireFlow exactly at its published version `0.2.4-alpha`:
+Install from [Packagist](https://packagist.org/packages/makermind/erd4dev) in your Laravel application. ERD4Dev uses [WireFlow](https://github.com/getartisanflow/wireflow) exactly at its published version `0.2.4-alpha`:
 
 ```bash
 composer require --dev makermind/erd4dev getartisanflow/wireflow:0.2.4-alpha
@@ -100,7 +100,7 @@ The result appears in a dismissible dialog with collapsed warnings and a copyabl
 php artisan blueprint:build blueprints/draft-42-20261103-123456123456.yaml --only=models,migrations
 ```
 
-The Blueprint package is included. Generating a draft only writes YAML. It does not automatically generate PHP files or run migrations. Database configuration, review and migration execution remain the user's responsibility. Drafts describe full schemas, not migration diffs against existing tables.
+The [Laravel Shift Blueprint](https://blueprint.laravelshift.com/docs/) dependency is included. Generating a draft only writes YAML. It does not automatically generate PHP files or run migrations. Database configuration, review and migration execution remain the user's responsibility. Drafts describe full schemas, not migration diffs against existing tables.
 
 Actual table names are preserved in `meta.table`. Missing id/timestamp columns are not implicitly added. Composite PK/UNIQUE keys are represented as indexes. Composite FKs and cross-schema references retain their columns but omit constraints that Blueprint cannot faithfully represent, with explicit warnings. Composite or nonstandard primary keys require reviewing the Eloquent model.
 
