@@ -51,6 +51,31 @@
   const year = document.querySelector('#current-year');
   if (year) year.textContent = String(new Date().getFullYear());
 
+  const versionTargets = [...document.querySelectorAll('[data-package-version]')];
+  if (versionTargets.length) {
+    const setPackageVersion = (version) => versionTargets.forEach((target) => { target.textContent = version; });
+    fetch('https://packagist.org/packages/makermind/erd4dev.json', {
+      headers: { Accept: 'application/json' }
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Packagist request failed');
+        return response.json();
+      })
+      .then((payload) => {
+        const stableVersions = Object.values(payload?.package?.versions || {})
+          .map((release) => release.version)
+          .filter((version) => /^v?\d+\.\d+\.\d+$/.test(version));
+        const latest = stableVersions.sort((left, right) => {
+          const a = left.replace(/^v/, '').split('.').map(Number);
+          const b = right.replace(/^v/, '').split('.').map(Number);
+          return (b[0] - a[0]) || (b[1] - a[1]) || (b[2] - a[2]);
+        })[0];
+        if (!latest) throw new Error('No stable release found');
+        setPackageVersion(latest.startsWith('v') ? latest : `v${latest}`);
+      })
+      .catch(() => setPackageVersion('latest'));
+  }
+
   const revealEls = [...document.querySelectorAll('.reveal')];
   if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const observer = new IntersectionObserver((entries) => {
