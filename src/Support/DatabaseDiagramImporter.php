@@ -44,6 +44,7 @@ final class DatabaseDiagramImporter
         $quote = static fn (string $name): string => '"'.str_replace('"', '""', $name).'"';
         $sql = [];
         $metadata = [];
+        $warnings = [];
         foreach ($tables as $table) {
             $qualified = $table['schema_qualified_name'] ?? $table['name'];
             $name = $names[$qualified];
@@ -52,8 +53,17 @@ final class DatabaseDiagramImporter
                 $definitions[] = $quote($column['name']).' '.($column['type'] ?: 'text').($column['nullable'] ? ' NULL' : ' NOT NULL');
                 $metadata[$name][$column['name']] = $column;
             }
+            $partialIndexes = $dialect === 'sqlite' ? array_column($this->read(fn () => $database->select(
+                'select lower(name) as name from pragma_index_list(?, ?) where partial = 1 and "unique" = 1',
+                [$table['name'], $table['schema'] ?? 'main'],
+            )), 'name') : [];
             foreach ($this->read(fn () => $schema->getIndexes($qualified)) as $index) {
                 if (! ($index['primary'] || $index['unique'])) {
+                    continue;
+                }
+                if (in_array($index['name'], $partialIndexes, true)) {
+                    $warnings[] = 'Partial UNIQUE index '.$index['name'].' on '.$name.' was omitted.';
+
                     continue;
                 }
                 if (empty($index['columns']) || in_array(null, $index['columns'], true) || in_array('', $index['columns'], true)) {
@@ -84,6 +94,7 @@ final class DatabaseDiagramImporter
         }
         unset($table);
         $data['origin'] = ['type' => 'database', 'connection' => $connection, 'importedAt' => now()->toIso8601String()];
+        $data['warnings'] = [...$data['warnings'], ...$warnings];
         $data['warnings'][] = 'Schema snapshot: data, defaults, checks, views, triggers, ordinary indexes and ON DELETE/UPDATE actions are not represented. Editing the board does not change the source database.';
 
         return $data;

@@ -69,7 +69,7 @@
                 <div class="er-import-heading">
                     <div>
                         <p class="er-import-kicker">New project</p>
-                        <h2 id="import-project-title">{{ match ($importFormat) { 'sql' => 'Import SQL schema', 'database' => 'Import database connection', default => 'Import ER diagram' } }}</h2>
+                        <h2 id="import-project-title">{{ match ($importFormat) { 'sql' => 'Import SQL schema', 'database' => 'Import database connection', default => 'Import diagram JSON' } }}</h2>
                     </div>
                     <button type="button" wire:click="$set('showImport', false)" aria-label="Close import">✕</button>
                 </div>
@@ -93,9 +93,16 @@
                             @endforeach
                         </select>
                     </label>
+                    <label class="flex items-start gap-3 rounded-xl border border-slate-200 p-3 text-sm dark:border-white/10">
+                        <input type="checkbox" wire:model="hideLaravelTablesOnImport" class="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                        <span>
+                            <strong class="block font-medium text-slate-900 dark:text-slate-100">Hide Laravel internal tables</strong>
+                            <small class="mt-1 block text-slate-600 dark:text-slate-400">Exclude framework tables such as cache, jobs, migrations, sessions and ERD4Dev diagrams. The users table is always kept.</small>
+                        </span>
+                    </label>
                     <p>Configure the connection and credentials in your Laravel project before importing.</p>
                 @elseif ($importFormat === 'sql')
-                    <p>Tables, columns and keys are imported as an editable relational model. Data, routines, defaults, checks and automatic generation are omitted. Single and composite PRIMARY, UNIQUE and FOREIGN keys are recognized in CREATE TABLE and ALTER TABLE statements; UNIQUE indexes are also imported.</p>
+                    <p>Tables, columns and keys are imported as an editable relational model. Data, routines, defaults, checks and generated expressions are omitted. Single and composite PRIMARY, UNIQUE and FOREIGN keys are recognized in CREATE TABLE and ALTER TABLE statements; UNIQUE indexes are also imported.</p>
                     <label class="er-import-drop">
                         <span>Select SQL file</span>
                         <small>Maximum 2 MB</small>
@@ -137,6 +144,7 @@
                         </select>
                     </label>
                 @else
+                    <p>Import an ER diagram or a relational model exported as JSON. The format is detected automatically.</p>
                     <label class="er-import-drop">
                         <span>Select JSON file</span>
                         <small>Maximum 2 MB</small>

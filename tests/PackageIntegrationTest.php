@@ -3,7 +3,10 @@
 namespace Makermind\Erd4dev\Tests;
 
 use ArtisanFlow\WireFlow\WireFlowServiceProvider;
+use Blueprint\Blueprint;
+use Blueprint\BlueprintServiceProvider;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
@@ -11,14 +14,21 @@ use Livewire\Livewire;
 use Livewire\LivewireServiceProvider;
 use Makermind\Erd4dev\ErdServiceProvider;
 use Makermind\Erd4dev\Livewire\ProjectDashboard;
+use Makermind\Erd4dev\Livewire\RelationalBoard;
 use Makermind\Erd4dev\Models\Diagram;
+use Makermind\Erd4dev\Services\BlueprintDraftGenerator;
+use Makermind\Erd4dev\Services\ErToRelationalTransformer;
+use Makermind\Erd4dev\Services\RelationalColumnUpdater;
+use Makermind\Erd4dev\Support\DatabaseDiagramImporter;
+use Makermind\Erd4dev\Support\ErDiagramImporter;
+use Makermind\Erd4dev\Support\SqlDiagramImporter;
 use Orchestra\Testbench\TestCase;
 
 class PackageIntegrationTest extends TestCase
 {
     protected function getPackageProviders($app): array
     {
-        return [LivewireServiceProvider::class, WireFlowServiceProvider::class, ErdServiceProvider::class];
+        return [LivewireServiceProvider::class, WireFlowServiceProvider::class, BlueprintServiceProvider::class, ErdServiceProvider::class];
     }
 
     protected function defineEnvironment($app): void
@@ -41,6 +51,59 @@ class PackageIntegrationTest extends TestCase
     {
         $this->get('/erd')->assertForbidden();
         $this->get('/erd/schema')->assertForbidden();
+    }
+
+    public function test_blueprint_parses_imported_keys_and_column_attributes(): void
+    {
+        $data = (new SqlDiagramImporter)->parse(<<<'SQL'
+            CREATE TABLE order_lines (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                order_number VARCHAR(20) NOT NULL REFERENCES orders (number),
+                state ENUM('', '0', 'in review'),
+                signature BINARY(16)
+            );
+            CREATE TABLE orders (number VARCHAR(20) PRIMARY KEY, UNIQUE (number));
+            SQL, 'mysql')['relational'];
+
+        $draft = (new BlueprintDraftGenerator)->generate($data);
+        $blueprint = $this->app->make(Blueprint::class);
+        $models = $blueprint->analyze($blueprint->parse($draft['yaml'], false))->models();
+
+        $this->assertSame(['Order', 'OrderLine'], array_keys($models));
+        $columns = $models['OrderLine']->columns();
+        $this->assertContains('unsigned', $columns['id']->modifiers());
+        $this->assertContains('autoIncrement', $columns['id']->modifiers());
+        $this->assertSame('orders.number', $columns['order_number']->isForeignKey());
+        $this->assertSame(['', '0', 'in review'], $columns['state']->attributes());
+        $this->assertSame(['16', 'true'], $columns['signature']->attributes());
+    }
+
+    public function test_er_example_draft_preserves_column_sizes_after_board_normalization(): void
+    {
+        $example = file_get_contents(__DIR__.'/../resources/examples/marketplace-er.json');
+        $diagram = ErDiagramImporter::parse($example);
+        $address = array_search('addresses', array_column($diagram['entities'], 'id'), true);
+        $diagram['entities'][$address]['name'] = 'Delivery Address';
+        $data = (new ErToRelationalTransformer)->transform($diagram);
+        $data['tables'] = (new RelationalColumnUpdater)->dialect($data['tables'], $data['dialect']);
+        $draft = (new BlueprintDraftGenerator)->generate($data, fromEr: true);
+
+        $this->assertStringContainsString('table: delivery_address', $draft['yaml']);
+        $this->assertStringContainsString('decimal:10,2', $draft['yaml']);
+        $this->assertStringContainsString('ER table Delivery Address is named delivery_address', $draft['yaml']);
+        $this->assertContains('Delivery Address', array_column($data['tables'], 'name'));
+    }
+
+    public function test_sqlite_snapshot_does_not_turn_a_partial_index_into_an_unconditional_unique_key(): void
+    {
+        DB::statement('CREATE TABLE contacts (id INTEGER PRIMARY KEY, email TEXT, deleted_at TEXT)');
+        DB::statement('CREATE UNIQUE INDEX contacts_email_active ON contacts (email) WHERE deleted_at IS NULL');
+
+        $data = (new DatabaseDiagramImporter)->import('testing');
+        $contacts = collect($data['tables'])->firstWhere('name', 'contacts');
+
+        $this->assertSame([], $contacts['uniqueKeys']);
+        $this->assertContains('Partial UNIQUE index contacts_email_active on contacts was omitted.', $data['warnings']);
     }
 
     public function test_panel_uses_package_views_and_precompiled_assets(): void
@@ -80,6 +143,73 @@ class PackageIntegrationTest extends TestCase
         $this->assertTrue($source->relationalDiagram->is($relational));
         $source->delete();
         $this->assertSame(0, Diagram::count());
+    }
+
+    public function test_json_import_preserves_relational_models_and_supports_export_round_trips(): void
+    {
+        Gate::define('erd.access', fn ($user = null) => true);
+        $json = file_get_contents(__DIR__.'/Fixtures/relational-model.json');
+        $data = json_decode($json, true);
+        unset($data['_comment']);
+
+        Livewire::test(ProjectDashboard::class)
+            ->set('importJson', '{invalid')
+            ->call('importProject')
+            ->set('importJson', $json)
+            ->call('importProject')
+            ->assertSet('importError', '')
+            ->assertRedirect(route('erd.boards.relational', Diagram::sole()));
+
+        $diagram = Diagram::sole();
+        $this->assertSame(Diagram::TYPE_RELATIONAL, $diagram->type);
+        $this->assertNull($diagram->source_diagram_id);
+        $this->assertSame($data, $diagram->data);
+
+        $board = Livewire::test(RelationalBoard::class, ['diagram' => $diagram])
+            ->assertSet('tables', $data['tables'])
+            ->assertSet('foreignKeys', $data['foreignKeys'])
+            ->call('openSqlPreview')
+            ->assertSet('sqlError', null);
+
+        Livewire::test(ProjectDashboard::class)
+            ->set('importJson', $board->instance()->getJsonPreviewProperty())
+            ->call('importProject')
+            ->assertRedirect();
+        $this->assertSame($data, Diagram::latest('id')->first()->data);
+    }
+
+    public function test_invalid_relational_json_does_not_create_diagrams(): void
+    {
+        Gate::define('erd.access', fn ($user = null) => true);
+        $data = json_decode(file_get_contents(__DIR__.'/Fixtures/relational-model.json'), true);
+        $data['foreignKeys'][0]['toTable'] = 'missing';
+        Livewire::test(ProjectDashboard::class)
+            ->set('importJson', json_encode($data))
+            ->call('importProject')
+            ->assertSet('importError', 'A foreign key references a missing table or column.');
+        $this->assertSame(0, Diagram::count());
+
+        $data['tables'][0]['columns'] = 'invalid';
+        Livewire::test(ProjectDashboard::class)
+            ->set('importJson', json_encode($data))
+            ->call('importProject')
+            ->assertNoRedirect();
+        $this->assertSame(0, Diagram::count());
+    }
+
+    public function test_json_import_still_accepts_er_diagrams(): void
+    {
+        Gate::define('erd.access', fn ($user = null) => true);
+        $json = file_get_contents(__DIR__.'/../resources/examples/er-conversion-cases.json');
+
+        Livewire::test(ProjectDashboard::class)
+            ->set('importProjectName', 'Imported ER')
+            ->set('importJson', $json)
+            ->call('importProject')
+            ->assertRedirect(route('erd.boards.er', Diagram::sole()));
+
+        $this->assertSame(Diagram::TYPE_ENTITY_RELATIONSHIP, Diagram::sole()->type);
+        $this->assertCount(40, Diagram::sole()->data['relations']);
     }
 
     public function test_livewire_updates_recheck_access_after_permission_is_revoked(): void

@@ -8,5 +8,4 @@ return [
     // This is a shared administrative workspace, not per-user storage.
     'middleware' => ['web', AuthorizeErd::class],
     'table' => 'erd_diagrams',
-    'development_assets' => false,
 ];

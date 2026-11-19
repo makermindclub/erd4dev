@@ -147,17 +147,8 @@ final class RelationalSqlGenerator
 
     private function columnType(string $dialect, array $column): string
     {
-        $raw = strtolower(trim((string) ($column['type'] ?? 'varchar')));
-        if (! preg_match('/^([a-z]+)(?:\s*\(\s*(\d+)\s*(?:,\s*(\d+)\s*)?\))?$/', $raw, $matches)) {
-            throw new InvalidArgumentException("Invalid column type: {$raw}.");
-        }
-
-        $type = match ($matches[1]) {
-            'int' => 'integer',
-            'bool' => 'boolean',
-            'string' => 'varchar',
-            default => $matches[1],
-        };
+        $column = DataTypeCatalog::parseDeclaration($column);
+        $type = $column['type'];
 
         if ($type === 'custom') {
             return $this->customColumnType($column);
@@ -176,19 +167,7 @@ final class RelationalSqlGenerator
             }
         }
         if (! $known) {
-            throw new InvalidArgumentException("Type {$raw} of column {$column['name']} is not recognized.");
-        }
-
-        $kind = DataTypeCatalog::kind($type);
-        if (isset($matches[2])) {
-            if ($kind === 'length' && ! isset($matches[3])) {
-                $column['length'] ??= (int) $matches[2];
-            } elseif ($kind === 'decimal' && isset($matches[3])) {
-                $column['precision'] ??= (int) $matches[2];
-                $column['scale'] ??= (int) $matches[3];
-            } else {
-                throw new InvalidArgumentException("The size of type {$raw} is invalid.");
-            }
+            throw new InvalidArgumentException("Type {$type} of column {$column['name']} is not recognized.");
         }
 
         $column['type'] = DataTypeCatalog::resolve($dialect, $type);
@@ -234,7 +213,7 @@ final class RelationalSqlGenerator
      * Composite PK references are stored as one board edge per column. Join
      * the complete set into one SQL constraint; reject an incomplete set.
      */
-    private function foreignKeyGroups(array $foreignKeys, array $tables): array
+    public function foreignKeyGroups(array $foreignKeys, array $tables): array
     {
         $groups = [];
         $compositePairs = [];
