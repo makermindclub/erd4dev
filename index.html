@@ -86,10 +86,11 @@
         <a href="#recursos">Features</a>
         <a href="#experiencia">Platform</a>
         <a href="#fluxo">How it works</a>
-        <a href="#instalacao">Documentation</a>
+        <a href="docs.html">Documentation</a>
         <a href="#makermind">Makermind</a>
       </nav>
       <div class="header-actions">
+        <a class="documentation-link" href="docs.html">Docs</a>
         <a class="github-link" href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer" aria-label="View the ERD4Dev repository on GitHub"><svg class="icon"><use href="#i-github"/></svg><span>GitHub</span></a>
         <a class="btn btn-small btn-light header-cta" href="#instalacao">Get started <svg class="icon small"><use href="#i-arrow-up"/></svg></a>
       </div>
@@ -97,7 +98,7 @@
       <button class="mobile-menu-button" type="button" id="menu-toggle" aria-label="Open menu" aria-controls="mobile-nav" aria-expanded="false"><svg class="icon"><use href="#i-menu"/></svg></button>
     </div>
     <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
-      <a href="#demonstracao">Demo</a><a href="#recursos">Features</a><a href="#experiencia">Platform</a><a href="#fluxo">How it works</a><a href="#instalacao">Documentation</a><a href="#makermind">Makermind</a><a href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>
+      <a href="#demonstracao">Demo</a><a href="#recursos">Features</a><a href="#experiencia">Platform</a><a href="#fluxo">How it works</a><a href="docs.html">Documentation</a><a href="#makermind">Makermind</a><a href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>
     </nav>
   </header>
 
@@ -184,6 +185,36 @@
     </section>
 
     <div class="tech-strip" aria-label="Key technologies and features"><div class="container tech-inner"><span>BUILT FOR THE ECOSYSTEM</span><strong>Laravel</strong><span class="tech-divider"></span><strong>Livewire</strong><span class="tech-divider"></span><strong>SQL</strong><span class="tech-divider"></span><strong>Blueprint</strong><span class="tech-divider"></span><strong>Composer</strong></div></div>
+
+    <section class="section documentation-section" id="documentacao" aria-labelledby="documentation-title">
+      <div class="container">
+        <div class="section-header documentation-header reveal">
+          <div class="section-kicker"><span class="kicker-line"></span> DOCUMENTATION</div>
+          <h2 id="documentation-title">A short path from<br><span class="muted-heading">installation to output.</span></h2>
+          <p>Read the complete tutorial without leaving the page. Each topic is maintained in its own Markdown file, with a direct link to the source.</p>
+          <nav class="docs-quick-nav" aria-label="Documentation sections"><a href="docs/getting-started.md" data-doc="docs/getting-started.md">Install</a><a href="docs/concepts.md" data-doc="docs/concepts.md">Models</a><a href="docs/modeling.md" data-doc="docs/modeling.md">Model</a><a href="docs/importing.md" data-doc="docs/importing.md">Import</a><a href="docs/blueprint-drafts.md" data-doc="docs/blueprint-drafts.md">Export</a><a href="docs/access-and-safety.md" data-doc="docs/access-and-safety.md">Access</a></nav>
+        </div>
+        <div class="docs-reader reveal" id="docs-reader" data-markdown-url="docs/overview.md">
+          <aside class="docs-reader-sidebar">
+            <span class="docs-reader-label">ON THIS PAGE</span>
+            <nav id="docs-toc" aria-label="Documentation table of contents">
+              <a href="docs/overview.md" data-doc="docs/overview.md">Overview</a>
+              <a href="docs/getting-started.md" data-doc="docs/getting-started.md">Install and open</a>
+              <a href="docs/concepts.md" data-doc="docs/concepts.md">Models and notation</a>
+              <a href="docs/modeling.md" data-doc="docs/modeling.md">Model your domain</a>
+              <a href="docs/importing.md" data-doc="docs/importing.md">Import JSON, SQL, or database metadata</a>
+              <a href="docs/blueprint-drafts.md" data-doc="docs/blueprint-drafts.md">Review and export</a>
+              <a href="docs/access-and-safety.md" data-doc="docs/access-and-safety.md">Access and safety</a>
+            </nav>
+            <a class="docs-reader-source" href="docs/overview.md" target="_blank" rel="noopener noreferrer">Open Markdown source ↗</a>
+          </aside>
+          <article class="docs-reader-content" id="docs-content" aria-live="polite">
+            <p class="docs-reader-loading">Loading the guide…</p>
+          </article>
+        </div>
+        <noscript><p class="docs-noscript">JavaScript is required for the in-page reader. <a href="docs/overview.md">Open the Markdown guide</a>.</p></noscript>
+      </div>
+    </section>
 
     <section class="section section-intro" id="recursos" aria-labelledby="features-title">
       <div class="container">

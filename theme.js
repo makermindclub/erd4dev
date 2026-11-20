@@ -15,7 +15,9 @@
     icon.setAttribute('href', light ? '#i-moon' : '#i-sun');
     if (themeMeta) themeMeta.setAttribute('content', light ? '#f8f9ff' : '#020002');
   };
-  apply(root.dataset.theme === 'light' ? 'light' : 'dark');
+  let savedTheme = root.dataset.theme;
+  try { savedTheme = localStorage.getItem('erd4dev-theme') || savedTheme; } catch (_) {}
+  apply(savedTheme === 'light' ? 'light' : 'dark');
   toggle.addEventListener('click', () => {
     const next = root.dataset.theme === 'light' ? 'dark' : 'light';
     apply(next);

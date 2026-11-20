@@ -108,6 +108,31 @@ html[data-theme="light"] .maker-logo-card {background:#fff;border:1px solid #e7e
 html[data-theme="light"] .maker-card-tag {color:#46465b}
 html[data-theme="light"] .site-footer {background:#fff;border-color:#e6e6f4}
 
+/* Documentation reader: keep the article legible when the global theme is light. */
+html[data-theme="light"] .documentation-section {background:linear-gradient(180deg,rgba(110,116,247,.06),transparent 24%,rgba(27,27,48,.025));border-color:#e2e2f2}
+html[data-theme="light"] .docs-quick-nav a {color:#535578;border-color:#d5d5ea}
+html[data-theme="light"] .docs-quick-nav a:hover {color:#30326f;background:#efefff;border-color:#8589e7}
+html[data-theme="light"] .docs-reader-sidebar {border-color:#d7d7eb}
+html[data-theme="light"] .docs-reader-sidebar nav a {color:#595b79}
+html[data-theme="light"] .docs-reader-sidebar nav a:hover,
+html[data-theme="light"] .docs-reader-sidebar nav a.is-active {color:#30326f;background:#ededff}
+html[data-theme="light"] .docs-reader-source {color:#666783}
+html[data-theme="light"] .docs-reader-content {border-color:#d8d8eb;background:linear-gradient(150deg,rgba(110,116,247,.08),rgba(255,255,255,.82) 72%);box-shadow:0 18px 50px rgba(33,30,90,.05)}
+html[data-theme="light"] .docs-reader-content h2 {border-color:#e0e0ee}
+html[data-theme="light"] .docs-reader-content p,
+html[data-theme="light"] .docs-reader-content ul,
+html[data-theme="light"] .docs-reader-content ol,
+html[data-theme="light"] .docs-reader-content blockquote,
+html[data-theme="light"] .docs-reader-content table {color:#555775}
+html[data-theme="light"] .docs-reader-content code {color:#4148b4;background:#eeeeff}
+html[data-theme="light"] .docs-reader-content pre {border-color:#c9c9ed;background:#1c1b2d}
+html[data-theme="light"] .docs-reader-content pre code {color:#f8f8ff;background:transparent}
+html[data-theme="light"] .docs-reader-content blockquote {background:#f1f0ff}
+html[data-theme="light"] .docs-reader-content th {color:#303149;background:#eeeeff}
+html[data-theme="light"] .docs-reader-content th,
+html[data-theme="light"] .docs-reader-content td {border-color:#d7d7e9}
+html[data-theme="light"] .docs-copy {color:#454775;background:#eeeeff;border-color:#cccced}
+
 /* Preserva o painel violeta como elemento de identidade, com texto correto nos dois temas. */
 html[data-theme="light"] .cta-panel {background:#6e74f7}
 html[data-theme="light"] .cta-panel h2,

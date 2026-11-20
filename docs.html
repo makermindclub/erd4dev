@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#020002">
+  <meta name="description" content="ERD4Dev documentation: install, model, import, and review database structures in Laravel.">
+  <title>Documentation — ERD4Dev</title>
+  <link rel="icon" href="assets/flow-chart.png" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="theme.css">
+  <script defer src="theme.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body class="docs-page">
+  <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4.3 1.4-4.3-2.3-6-2.8m12 6v-3.2a2.8 2.8 0 0 0-.8-2.2c2.7-.3 5.6-1.3 5.6-6.1a4.8 4.8 0 0 0-1.3-3.3 4.5 4.5 0 0 0-.1-3.3s-1.1-.4-3.4 1.3a11.8 11.8 0 0 0-6.2 0C6.5 3.7 5.4 4.1 5.4 4.1a4.5 4.5 0 0 0-.1 3.3A4.8 4.8 0 0 0 4 10.7c0 4.8 2.9 5.8 5.6 6.1a2.8 2.8 0 0 0-.8 2.2V22"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M5 5 19 19M19 5 5 19"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.4 15.5A8.5 8.5 0 0 1 8.5 3.6 8.5 8.5 0 1 0 20.4 15.5Z"/></symbol>
+  </svg>
+
+  <header class="site-header" id="topo">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="ERD4Dev — home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><i></i></span>
+        <span class="brand-title">ERD<span>4</span>Dev</span>
+      </a>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="index.html#demonstracao">Demo</a>
+        <a href="index.html#recursos">Features</a>
+        <a href="index.html#experiencia">Platform</a>
+        <a href="index.html#fluxo">How it works</a>
+        <a href="docs.html" aria-current="page">Documentation</a>
+      </nav>
+      <div class="header-actions">
+        <a class="documentation-link" href="index.html">Back to site</a>
+        <a class="github-link" href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer" aria-label="View the ERD4Dev repository on GitHub"><svg class="icon"><use href="#i-github"/></svg><span>GitHub</span></a>
+      </div>
+      <button class="theme-toggle" type="button" id="theme-toggle" aria-label="Enable light theme" aria-pressed="false" title="Toggle light/dark theme"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg></button>
+      <button class="mobile-menu-button" type="button" id="menu-toggle" aria-label="Open menu" aria-controls="mobile-nav" aria-expanded="false"><svg class="icon"><use href="#i-menu"/></svg></button>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
+      <a href="index.html">Back to site</a><a href="index.html#demonstracao">Demo</a><a href="https://github.com/makermindclub/erd4dev" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>
+    </nav>
+  </header>
+
+  <main id="conteudo">
+    <section class="section documentation-section" id="documentacao" aria-label="Documentation">
+      <div class="container">
+        <div class="docs-reader reveal" id="docs-reader" data-markdown-url="docs/overview.md">
+          <aside class="docs-reader-sidebar">
+            <span class="docs-reader-label">DOCUMENTATION</span>
+            <nav id="docs-toc" aria-label="Documentation topics">
+              <a href="docs/overview.md" data-doc="docs/overview.md">Overview</a>
+              <a href="docs/getting-started.md" data-doc="docs/getting-started.md">Install and open</a>
+              <a href="docs/concepts.md" data-doc="docs/concepts.md">Models and notation</a>
+              <a href="docs/modeling.md" data-doc="docs/modeling.md">Model your domain</a>
+              <a href="docs/importing.md" data-doc="docs/importing.md">Import JSON, SQL, or database metadata</a>
+              <a href="docs/blueprint-drafts.md" data-doc="docs/blueprint-drafts.md">Review and export</a>
+              <a href="docs/access-and-safety.md" data-doc="docs/access-and-safety.md">Access and safety</a>
+            </nav>
+            <a class="docs-reader-source" href="docs/overview.md" target="_blank" rel="noopener noreferrer">Open Markdown source ↗</a>
+          </aside>
+          <article class="docs-reader-content" id="docs-content" aria-live="polite"><p class="docs-reader-loading">Loading the guide…</p></article>
+        </div>
+        <noscript><p class="docs-noscript">JavaScript is required for the in-page reader. <a href="docs/overview.md">Open the Markdown guide</a>.</p></noscript>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

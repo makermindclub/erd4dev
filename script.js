@@ -15,8 +15,8 @@
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape') setMenuOpen(false); });
   window.addEventListener('resize', () => { if (window.innerWidth > 920) setMenuOpen(false); });
 
-  const copyButton = document.querySelector('[data-copy-target]');
-  if (copyButton) {
+  const copyButtons = [...document.querySelectorAll('[data-copy-target]')];
+  copyButtons.forEach((copyButton) => {
     let restoreTimeout;
     copyButton.addEventListener('click', async () => {
       const element = document.getElementById(copyButton.dataset.copyTarget);
@@ -46,7 +46,7 @@
         copyButton.querySelector('span').textContent = 'Copy';
       }, 2400);
     });
-  }
+  });
 
   const year = document.querySelector('#current-year');
   if (year) year.textContent = String(new Date().getFullYear());
@@ -74,6 +74,139 @@
         setPackageVersion(latest.startsWith('v') ? latest : `v${latest}`);
       })
       .catch(() => setPackageVersion('latest'));
+  }
+
+  const docsReader = document.querySelector('#docs-reader');
+  if (docsReader) {
+    const docsContent = document.querySelector('#docs-content');
+    const docsToc = document.querySelector('#docs-toc');
+    const topicGroups = [
+      ['Getting started', [['overview', 'Overview'], ['getting-started', 'Installation']]],
+      ['Learn the models', [['concepts', 'Conceptual, logical, and physical'], ['entity-relationship', 'Entities and attributes'], ['cardinality', 'Chen and Crow’s Foot'], ['relational-model', 'Tables, keys, and constraints']]],
+      ['Build a diagram', [['modeling', 'Editor workflow'], ['relationships', 'Relationship patterns']]],
+      ['Import a structure', [['importing', 'Choose an import'], ['import-json', 'JSON structure'], ['import-sql', 'SQL files and dialects'], ['database-connections', 'Database connections']]],
+      ['Review and generate', [['review', 'Review the model'], ['regeneration', 'Linked models and regeneration'], ['sql-output', 'Review SQL output'], ['blueprint-drafts', 'Blueprint drafts']]],
+      ['Watch the package', [['recordings', 'Recorded walkthroughs'], ['er-menu', 'ER editor: More menu'], ['relational-menu', 'Relational: More menu']]],
+      ['Operate the package', [['access-and-safety', 'Access and storage'], ['troubleshooting', 'Troubleshooting']]]
+    ];
+    docsToc.innerHTML = topicGroups.map(([group, topics]) => `<details class="docs-topic-group" open><summary>${group}</summary><div>${topics.map(([file, title]) => `<a href="docs/${file}.md" data-doc="docs/${file}.md">${title}</a>`).join('')}</div></details>`).join('');
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[char]);
+    const sectionIds = {
+      'Install and open': 'docs-install',
+      'Model your domain': 'docs-model',
+      'Import an existing structure': 'docs-import',
+      'Review and export': 'docs-export',
+      'Access outside local development': 'docs-access'
+    };
+    const slugify = (heading) => sectionIds[heading] || heading.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const inlineMarkdown = (value) => {
+      let html = escapeHtml(value);
+      const codeTokens = [];
+      html = html.replace(/`([^`]+)`/g, (_, code) => { codeTokens.push(`<code>${code}</code>`); return `@@CODE${codeTokens.length - 1}@@`; });
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|#[^\s)]+|[a-z-]+\.md)\)/g, (_, label, href) => `<a href="${href.endsWith('.md') && !href.startsWith('http') ? `docs/${href}` : href}"${href.endsWith('.md') && !href.startsWith('http') ? ` data-doc="docs/${href}"` : ''}${href.startsWith('http') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${label}</a>`);
+      return html.replace(/@@CODE(\d+)@@/g, (_, index) => codeTokens[Number(index)]);
+    };
+    const renderMarkdown = (source) => {
+      const lines = source.replace(/\r\n?/g, '\n').split('\n');
+      const output = [];
+      let paragraph = [];
+      let list = null;
+      let code = null;
+      let table = null;
+      const flushParagraph = () => { if (paragraph.length) { output.push(`<p>${paragraph.map(inlineMarkdown).join(' ')}</p>`); paragraph = []; } };
+      const closeList = () => { if (list) { output.push(`</${list}>`); list = null; } };
+      const closeTable = () => { if (table) { output.push('</tbody></table>'); table = null; } };
+      lines.forEach((line) => {
+        if (line.startsWith('```')) {
+          if (code) { output.push(`<pre><code${code.lang ? ` class="language-${escapeHtml(code.lang)}"` : ''}>${escapeHtml(code.lines.join('\n'))}</code></pre>`); code = null; }
+          else { flushParagraph(); closeList(); closeTable(); code = { lang: line.slice(3).trim(), lines: [] }; }
+          return;
+        }
+        if (code) { code.lines.push(line); return; }
+        if (!line.trim()) { flushParagraph(); closeList(); closeTable(); return; }
+        const recording = line.match(/^!\[([^\]]+)\]\((?:\.\.\/)?(assets\/tutorials\/[a-z-]+\.gif)\)$/);
+        if (recording) {
+          flushParagraph(); closeList(); closeTable();
+          output.push(`<figure class="docs-recording"><a href="${recording[2]}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(recording[1])} — open full size"><img src="${recording[2]}" alt="${escapeHtml(recording[1])}" loading="lazy" width="1120" height="700"></a><figcaption>${escapeHtml(recording[1])} · Click to open full size</figcaption></figure>`);
+          return;
+        }
+        const heading = line.match(/^(#{1,3})\s+(.+)$/);
+        if (heading) { flushParagraph(); closeList(); closeTable(); const level = heading[1].length; const title = heading[2].trim(); output.push(`<h${level} id="${slugify(title)}">${inlineMarkdown(title)}</h${level}>`); return; }
+        if (/^\|?\s*:?-{3,}/.test(line)) return;
+        if (line.includes('|')) {
+          const cells = line.replace(/^\||\|$/g, '').split('|').map(cell => cell.trim());
+          flushParagraph(); closeList();
+          if (!table) { table = 'open'; output.push(`<table><thead><tr>${cells.map(cell => `<th>${inlineMarkdown(cell)}</th>`).join('')}</tr></thead><tbody>`); }
+          else output.push(`<tr>${cells.map(cell => `<td>${inlineMarkdown(cell)}</td>`).join('')}</tr>`);
+          return;
+        }
+        const unordered = line.match(/^\s*-\s+(.+)$/);
+        const ordered = line.match(/^\s*\d+\.\s+(.+)$/);
+        if (unordered || ordered) { flushParagraph(); closeTable(); const type = unordered ? 'ul' : 'ol'; if (list && list !== type) closeList(); if (!list) { list = type; output.push(`<${type}>`); } output.push(`<li>${inlineMarkdown((unordered || ordered)[1])}</li>`); return; }
+        if (line.startsWith('> ')) { flushParagraph(); closeList(); closeTable(); output.push(`<blockquote>${inlineMarkdown(line.slice(2))}</blockquote>`); return; }
+        closeList(); closeTable(); paragraph.push(line.trim());
+      });
+      if (code) output.push(`<pre><code>${escapeHtml(code.lines.join('\n'))}</code></pre>`);
+      flushParagraph(); closeList(); closeTable();
+      return output.join('');
+    };
+    const renderDocs = (source) => {
+      docsContent.innerHTML = renderMarkdown(source);
+      docsContent.querySelectorAll('a[href^="#"]').forEach((link) => link.addEventListener('click', () => { history.replaceState(null, '', link.getAttribute('href')); }));
+      docsContent.querySelectorAll('pre').forEach((pre) => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'docs-copy'; button.textContent = 'Copy';
+        button.addEventListener('click', async () => { try { await navigator.clipboard.writeText(pre.querySelector('code').textContent); button.textContent = 'Copied'; setTimeout(() => { button.textContent = 'Copy'; }, 1600); } catch (_) { button.textContent = 'Select and copy'; } });
+        pre.appendChild(button);
+      });
+    };
+    const topicLinks = [...document.querySelectorAll('[data-doc]')];
+    const sourceLink = docsReader.querySelector('.docs-reader-source');
+    let activeRequest;
+    const loadDoc = async (url) => {
+      if (!topicLinks.some((link) => link.dataset.doc === url)) return;
+      activeRequest?.abort();
+      const request = new AbortController();
+      activeRequest = request;
+      docsContent.setAttribute('aria-busy', 'true');
+      try {
+        const response = await fetch(url, { cache: 'no-cache', signal: request.signal });
+        if (!response.ok) throw new Error('Documentation topic unavailable');
+        const source = await response.text();
+        if (request.signal.aborted) return;
+        // Keep the existing article in place until its replacement is ready.
+        docsContent.style.minHeight = `${docsContent.offsetHeight}px`;
+        renderDocs(source);
+        topicLinks.forEach((link) => {
+          const active = link.dataset.doc === url;
+          link.classList.toggle('is-active', active);
+          if (active) {
+            link.setAttribute('aria-current', 'page');
+            const group = link.closest('details');
+            if (group) group.open = true;
+          } else link.removeAttribute('aria-current');
+        });
+        if (sourceLink) sourceLink.href = url;
+      } catch (error) {
+        if (error.name !== 'AbortError') docsContent.innerHTML = `<p>Unable to load this topic here. <a href="${url}">Open the Markdown source</a>.</p>`;
+      } finally {
+        if (activeRequest === request) docsContent.setAttribute('aria-busy', 'false');
+      }
+    };
+    topicLinks.forEach((link) => link.addEventListener('click', (event) => {
+      event.preventDefault();
+      loadDoc(link.dataset.doc);
+    }));
+    docsContent.addEventListener('click', (event) => {
+      const link = event.target.closest('a[data-doc]');
+      if (!link) return;
+      event.preventDefault();
+      loadDoc(link.dataset.doc);
+    });
+    const requestedDoc = new URLSearchParams(window.location.search).get('doc');
+    const initialUrl = requestedDoc && topicLinks.some((link) => link.dataset.doc === requestedDoc) ? requestedDoc : docsReader.dataset.markdownUrl;
+    loadDoc(initialUrl);
   }
 
   const revealEls = [...document.querySelectorAll('.reveal')];
