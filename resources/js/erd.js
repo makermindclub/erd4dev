@@ -5,6 +5,7 @@ import './erd/canvas-controller';
 import './erd/relationship-editor';
 import './erd/node-measurement';
 import './erd/export-image';
+import './erd/relationship-guide.mjs';
 import { relationalSelfLoopPath } from './erd/relational-self-loop';
 import { installRelationalConnections } from './erd/relational-connections';
 import { installBoardShortcuts } from './erd/keyboard-shortcuts';

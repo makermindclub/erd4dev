@@ -1,4 +1,4 @@
-<div class="er-board flex h-screen min-h-0 flex-col overflow-hidden bg-slate-100 font-sans text-slate-800"
+<div class="erd-workspace er-board flex h-screen min-h-0 flex-col overflow-hidden bg-slate-100 font-sans text-slate-800"
     x-data="{
         shortcutsCleanup: null,
         destroy() { this.shortcutsCleanup?.destroy(); },
@@ -19,12 +19,6 @@
     <x-erd::board-header mode="er" :diagram-name="$diagramName" :relational-diagram-id="$relationalDiagramId"
         :relational-outdated="$relationalIsOutdated"
         :entities-count="count($entities)" :relations-count="count($relations)" />
-
-    @if ($diagramName === 'ER to relational conversion examples')
-        <div class="er-analysis-guide">
-            <strong>Cases R01–R32:</strong> A and B show the cardinality at each end. Odd cases have no relationship attribute; even cases marked “+” include one. N:N cases show a junction rectangle. Below the matrix are self-relationships, composite keys, UNIQUE keys and parallel relationships.
-        </div>
-    @endif
 
     <div x-show="guideOpen" x-cloak class="er-guide" @keydown.escape.window="guideOpen = false">
         <p><kbd>Ctrl/Cmd + S</kbd> saves. <kbd>Delete</kbd> removes the selection. Select a column row and leave its text field to delete it.</p>

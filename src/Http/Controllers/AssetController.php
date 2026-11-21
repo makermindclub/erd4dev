@@ -14,7 +14,7 @@ class AssetController
             'erd.css' => [__DIR__.'/../../../dist/erd.css', 'text/css'],
             'livewire.js' => [dirname((new \ReflectionClass(Livewire::class))->getFileName(), 2).'/dist/livewire.min.js', 'application/javascript'],
         ];
-        foreach (['marketplace-er.json', 'clinic-er.json', 'er-conversion-cases.json'] as $example) {
+        foreach (['marketplace-er.json', 'clinic-er.json'] as $example) {
             $files['examples/'.$example] = [__DIR__.'/../../../resources/examples/'.$example, 'application/json'];
         }
         abort_unless(isset($files[$file]), 404);

@@ -148,3 +148,23 @@ Report bugs and request features through [GitHub Issues](https://github.com/make
 ## License
 
 ERD4Dev is distributed under the [MIT license](https://github.com/makermindclub/erd4dev/blob/main/LICENSE). Third-party license notices are available in [`licenses/`](https://github.com/makermindclub/erd4dev/tree/main/licenses).
+
+### Guided relationships
+
+Independent relational boards (SQL/JSON/database imports) offer a guided relationship editor. Choose two tables, answer how many records can relate in each direction, and choose whether the foreign key is optional. The editor shows the rule in plain language and the exact column, NULL and UNIQUE changes before saving. Existing primary/unique protection is never silently removed.
+
+One-to-one and many-to-one rules can reuse existing columns or create columns with the referenced key’s type. Many-to-many rules create an intermediate table with two foreign keys and a composite primary key. The Blueprint preview runs the real draft generator on a temporary model; it does not save the diagram or write a draft file. Review its warnings, including Eloquent’s composite-key limitations.
+
+Click a relationship label to inspect its rules. ER-linked boards expose the same explanations in read-only form; structural edits belong in the ER source, followed by regeneration. Diagram edits do not change the connected database.
+
+Run the client-side planning tests with `node --test tests/js/*.test.mjs`, alongside `composer test`.
+
+## Authors
+
+ERD4Dev was developed by the following students of the Technical Program in Informatics at the Federal Institute of Education, Science and Technology of Rio Grande do Norte (IFRN), Mossoró Campus:
+
+- Arthur Ambrósio Praxedes Vieira
+- Cauã Vitor Cabreira da Silva
+- Cleber Raniele Firmino da Silva Júnior
+
+The project was developed under the coordination and supervision of Professor Giovane Montine Moreira Gurgel at the **Laboratório de Pesquisa em Engenharia de Software e Automação (LAPEA)** — Research Laboratory in Software Engineering and Automation.

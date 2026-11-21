@@ -15,6 +15,7 @@ use Makermind\Erd4dev\Livewire\Concerns\HandlesDiagramJsonExport;
 use Makermind\Erd4dev\Models\Diagram;
 use Makermind\Erd4dev\Services\BlueprintDraftGenerator;
 use Makermind\Erd4dev\Services\BlueprintDraftWriter;
+use Makermind\Erd4dev\Services\GuidedRelationshipBuilder;
 use Makermind\Erd4dev\Services\ErToRelationalTransformer;
 use Makermind\Erd4dev\Services\RelationalColumnUpdater;
 use Makermind\Erd4dev\Services\RelationalDiagramDriftAnalyzer;
@@ -299,11 +300,29 @@ class RelationalBoard extends Component
 
     public function openStructureEditor(): void
     {
-        $this->authorizeStructureEdit();
         $this->showStructureEditor = true;
     }
 
-    private function editStructure(callable $edit): void
+    public function createGuidedRelationship(array $plan): bool
+    {
+        return $this->editStructure(fn (RelationalStructureEditor $editor) => (new GuidedRelationshipBuilder)->apply($editor, $plan, $this->dialect));
+    }
+
+    public function previewGuidedRelationship(array $plan): array
+    {
+        $this->authorizeStructureEdit();
+        $editor = new RelationalStructureEditor($this->tables, $this->foreignKeys);
+        try {
+            (new GuidedRelationshipBuilder)->apply($editor, $plan, $this->dialect);
+            $draft = (new BlueprintDraftGenerator)->generate(['dialect' => $this->dialect, 'tables' => $editor->tables, 'foreignKeys' => $editor->foreignKeys]);
+
+            return ['ok' => true] + $draft;
+        } catch (InvalidArgumentException $exception) {
+            return ['ok' => false, 'message' => $exception->getMessage()];
+        }
+    }
+
+    private function editStructure(callable $edit): bool
     {
         $this->authorizeStructureEdit();
         $editor = new RelationalStructureEditor($this->tables, $this->foreignKeys);
@@ -312,7 +331,7 @@ class RelationalBoard extends Component
         } catch (InvalidArgumentException $exception) {
             $this->dispatch('relational-edit-rejected', message: $exception->getMessage());
 
-            return;
+            return false;
         }
         $previous = array_column($this->tables, 'id');
         $this->tables = $editor->tables;
@@ -322,6 +341,8 @@ class RelationalBoard extends Component
             $this->syncCanvas($previous);
         }
         $this->dispatch('relational-saved');
+
+        return true;
     }
 
     public function openTableCreator(): void

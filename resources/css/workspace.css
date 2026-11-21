@@ -1,0 +1,293 @@
+/* Shared board surfaces. Keep node geometry and canvas interactions intact. */
+.erd-workspace {
+    --workspace-bg: #f8f9ff;
+    --workspace-panel: #fff;
+    --workspace-raised: #f2f2fc;
+    --workspace-text: #1b1b30;
+    --workspace-muted: #64647d;
+    --workspace-line: #dedeea;
+    --workspace-accent: #5057d5;
+    --workspace-soft: #efefff;
+    --workspace-pattern: #d9d9ed;
+    background: var(--workspace-bg);
+    color: var(--workspace-text);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+.dark .erd-workspace {
+    --workspace-bg: #020002;
+    --workspace-panel: #0c0b12;
+    --workspace-raised: #15131f;
+    --workspace-text: #f5f4fa;
+    --workspace-muted: #aaa8bb;
+    --workspace-line: #2c2938;
+    --workspace-accent: #989cff;
+    --workspace-soft: #1b1931;
+    --workspace-pattern: #252231;
+}
+/* Increase specificity over the package's existing light-mode selectors. */
+html .erd-workspace.er-board, html .erd-workspace.relational-board { background: var(--workspace-bg); color: var(--workspace-text); }
+.erd-workspace button { cursor: pointer; }
+.erd-workspace button:disabled { opacity: .5; cursor: not-allowed; }
+.erd-workspace :is(button,a,input,select,summary,textarea):focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 3px; }
+.erd-workspace .board-toolbar { --board-accent: var(--workspace-accent); --board-accent-soft: var(--workspace-soft); border-color: var(--workspace-line); background: var(--workspace-panel); box-shadow: none; }
+.erd-workspace .board-toolbar-main { min-height: 76px; padding: 14px 24px; gap: 18px; }
+.erd-workspace .board-toolbar-brand { display: flex; gap: 12px; }
+.erd-workspace .board-toolbar-logo { width: 34px; height: 34px; border-radius: 0; background: transparent; color: #6e74f7; }
+.erd-workspace .board-toolbar-logo svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 2; }
+.erd-workspace .board-toolbar-logo rect:first-child { fill: currentColor; }
+.erd-workspace .board-toolbar-title h1 { color: var(--workspace-text); font-size: 15px; font-weight: 700; letter-spacing: -.025em; }
+.erd-workspace .board-toolbar-title p { max-width: 200px; margin-top: 4px; color: var(--workspace-muted); font-size: 12px; }
+.erd-workspace .board-dialect { padding-left: 18px; border-left: 1px solid var(--workspace-line); color: var(--workspace-muted); font-size: 12px; }
+.erd-workspace .board-dialect select { max-width: 130px; min-height: 38px; padding: 8px 10px; border-color: var(--workspace-line); border-radius: 7px; background: var(--workspace-bg); color: var(--workspace-text); font-size: 12px; }
+.erd-workspace .board-model-tabs { padding: 4px; border-color: var(--workspace-line); border-radius: 8px; background: var(--workspace-bg); }
+.erd-workspace .board-model-tabs :is(a,button) { padding: 8px 12px; color: var(--workspace-muted); font-size: 12px; font-weight: 600; }
+.erd-workspace .board-model-tabs .is-active { background: var(--workspace-soft); color: var(--workspace-accent); box-shadow: none; }
+.erd-workspace .board-toolbar-button,
+.erd-workspace .board-toolbar-menu > summary { min-height: 38px; padding: 9px 12px; border-color: var(--workspace-line); border-radius: 7px; background: transparent; color: var(--workspace-text); font-size: 12px; font-weight: 600; }
+.erd-workspace .board-toolbar-button:hover,
+.erd-workspace .board-toolbar-menu > summary:hover { border-color: var(--workspace-accent); background: var(--workspace-soft); color: var(--workspace-accent); }
+.erd-workspace .board-toolbar-save,
+.erd-workspace .board-toolbar-save:hover { background: #6e74f7; border-color: #6e74f7; color: #fff; }
+.erd-workspace .board-menu-panel { width: min(270px,calc(100vw - 24px)); padding: 8px; border-color: var(--workspace-line); border-radius: 10px; background: var(--workspace-panel); box-shadow: 0 18px 55px #0003; }
+.erd-workspace .board-menu-panel :is(button,a) { min-height: 38px; padding: 10px 12px; border-radius: 6px; color: var(--workspace-text); font-size: 13px; font-weight: 500; }
+.erd-workspace .board-menu-panel :is(button,a):hover { background: var(--workspace-soft); color: var(--workspace-accent); }
+.erd-workspace .board-menu-context { padding: 10px 12px 14px; margin-bottom: 3px; border-color: var(--workspace-line); }
+.erd-workspace .board-menu-context strong { color: var(--workspace-text); font-size: 13px; }
+.erd-workspace .board-menu-context span,
+.erd-workspace .board-menu-label { color: var(--workspace-muted); font-size: 11px; }
+.erd-workspace .board-menu-label { padding: 14px 12px 4px; }
+.erd-workspace .board-menu-panel .board-menu-special { border-color: var(--workspace-line); color: var(--workspace-accent); }
+.erd-workspace .board-toolbar-workflow { min-height: 58px; padding: 10px 24px; border-color: var(--workspace-line); background: var(--workspace-bg); }
+.erd-workspace .board-create-form label { color: var(--workspace-muted); font-size: 12px; font-weight: 600; }
+.erd-workspace .board-create-form input { min-height: 36px; width: 220px; border-color: var(--workspace-line); border-radius: 6px; background: var(--workspace-panel); color: var(--workspace-text); font-size: 13px; }
+.erd-workspace .board-create-form button { min-height: 36px; border-radius: 6px; background: #6e74f7; color: #fff; font-size: 12px; }
+.erd-workspace .flow-container {
+    --flow-bg-color: var(--workspace-bg);
+    --flow-bg-pattern-color: var(--workspace-pattern);
+    --flow-node-selected-border-color: var(--workspace-accent);
+    --flow-edge-stroke: #9290b3;
+    --flow-edge-stroke-selected: var(--workspace-accent);
+    --flow-controls-btn-bg: var(--workspace-panel);
+    --flow-controls-btn-border: 1px solid var(--workspace-line);
+    --flow-controls-btn-color: var(--workspace-muted);
+    --flow-controls-btn-hover-bg: var(--workspace-soft);
+    --flow-minimap-bg: var(--workspace-panel);
+    --flow-minimap-border: 1px solid var(--workspace-line);
+    --flow-minimap-node-color: #6e74f755;
+    --flow-minimap-mask-color: #6e74f714;
+    --flow-panel-bg: var(--workspace-panel);
+    --flow-panel-border: 1px solid var(--workspace-line);
+}
+.erd-workspace .board-background-trigger,
+.erd-workspace .board-background-options { border-color: var(--workspace-line); border-radius: 7px; background: var(--workspace-panel); color: var(--workspace-text); box-shadow: 0 8px 24px #0002; }
+.erd-workspace .board-background-trigger { padding: 9px 12px; gap: 8px; font-size: 12px; font-weight: 600; }
+.erd-workspace .board-background-options button { padding: 9px 10px; font-size: 12px; }
+.erd-workspace .board-background-options button:hover,
+.erd-workspace .board-background-options button[aria-pressed="true"] { border-color: var(--workspace-accent); background: var(--workspace-soft); color: var(--workspace-accent); }
+/* Node sizes and column heights are shared with the server's edge projection. */
+html .erd-workspace .rel-node,
+html .erd-workspace .er-node { border-color: var(--workspace-line); border-radius: 10px; background: var(--workspace-panel); color: var(--workspace-text); box-shadow: 0 10px 30px #0002; }
+.erd-workspace .flow-node-selected :is(.rel-node,.er-node) { border-color: var(--workspace-accent); box-shadow: 0 0 0 2px #6e74f740,0 10px 30px #0002; }
+html .erd-workspace .rel-node-head,
+html .erd-workspace .er-head { border-color: var(--workspace-line); background: var(--workspace-soft); color: var(--workspace-text); }
+.erd-workspace .rel-node-head span { color: var(--workspace-accent); }
+html .erd-workspace .rel-node-title > strong,
+html .erd-workspace .rel-column-name,
+html .erd-workspace .er-attr-name-input { color: var(--workspace-text); }
+html .erd-workspace .rel-column + .rel-column,
+html .erd-workspace .er-row { border-color: var(--workspace-line); }
+.erd-workspace .rel-column:hover,
+html .erd-workspace .er-row:hover { background: var(--workspace-soft); }
+html .erd-workspace .rel-inline-input:hover,
+html .erd-workspace .rel-inline-input:focus,
+html .erd-workspace .er-attr-name-input:focus { border-color: var(--workspace-accent); background: var(--workspace-bg); color: var(--workspace-text); }
+html .erd-workspace .rel-key-control { background: var(--workspace-soft); color: var(--workspace-accent); }
+html .erd-workspace .rel-key.is-fk,
+html .erd-workspace .rel-name-editor small { color: var(--workspace-accent); }
+html .erd-workspace .rel-add-column,
+html .erd-workspace .er-foot { border-color: var(--workspace-line); background: var(--workspace-bg); }
+html .erd-workspace .rel-add-column input,
+html .erd-workspace .er-add-input,
+html .erd-workspace .er-add-select { border-color: var(--workspace-line); background: var(--workspace-panel); color: var(--workspace-text); }
+html .erd-workspace .rel-add-column button { background: var(--workspace-soft); color: var(--workspace-accent); }
+html .erd-workspace .er-add-toggle { color: var(--workspace-accent); }
+html .erd-workspace .er-head-self { color: var(--workspace-accent); }
+html .erd-workspace .er-head-del { background: var(--workspace-raised); color: var(--workspace-muted); }
+html .erd-workspace .rel-column-type,
+html .erd-workspace .rel-column-definition > input,
+html .erd-workspace .rel-decimal-size input { background: var(--workspace-bg); color: var(--workspace-text); border-color: var(--workspace-line); }
+html .erd-workspace .relational-board .flow-edge-label,
+html .erd-workspace .flow-edge-label { background: var(--workspace-panel); color: var(--workspace-accent); }
+html .erd-workspace .rel-guide,
+html .erd-workspace .er-guide { background: var(--workspace-panel); color: var(--workspace-muted); border-color: var(--workspace-line); }
+.erd-workspace .rel-guide p strong,
+.erd-workspace .er-guide p strong { color: var(--workspace-text); }
+.erd-workspace .rel-guide p small,
+.erd-workspace .rel-guide-rule { color: var(--workspace-muted); }
+/* Dialogs share the same neutral surfaces as the project dashboard. */
+.erd-workspace .rel-modal { padding: 24px; background: #020008a6; backdrop-filter: blur(5px); }
+html .erd-workspace .rel-modal-card { max-height: calc(100dvh - 48px); border-color: var(--workspace-line); border-radius: 14px; background: var(--workspace-panel); color: var(--workspace-text); box-shadow: 0 30px 90px #0005; }
+html .erd-workspace .rel-modal-card header { flex-shrink: 0; align-items: center; gap: 20px; padding: 20px 24px; border-color: var(--workspace-line); font-size: 18px; }
+.erd-workspace .rel-modal-card header :is(h2,strong) { color: var(--workspace-text); font-weight: 700; letter-spacing: -.035em; }
+.erd-workspace .rel-modal-card header h2 { font-size: 28px; }
+.erd-workspace .board-dialog-kicker { margin: 0 0 8px; color: var(--workspace-accent); font-size: 10px; letter-spacing: .16em; font-weight: 700; }
+.erd-workspace .rel-modal-card header button { display: grid; flex-shrink: 0; place-items: center; width: 34px; height: 34px; border: 1px solid var(--workspace-line); border-radius: 7px; color: var(--workspace-muted); font-size: 14px; }
+.erd-workspace .rel-modal-card header button:hover { background: var(--workspace-soft); color: var(--workspace-text); }
+html .erd-workspace .rel-modal-card pre { min-height: 0; padding: 24px 28px; color: var(--workspace-text); font-size: 13px; line-height: 1.75; }
+html .erd-workspace .rel-modal-actions { flex-shrink: 0; gap: 10px; padding: 18px 28px; border-color: var(--workspace-line); }
+html .erd-workspace .rel-modal-actions button { padding: 10px 16px; border-color: var(--workspace-line); border-radius: 7px; background: var(--workspace-soft); color: var(--workspace-accent); font-size: 14px; font-weight: 600; }
+.erd-workspace .rel-structure-body { padding: 20px 24px; }
+.erd-workspace .rel-structure-intro { margin-bottom: 18px; color: var(--workspace-muted); font-size: 15px; line-height: 1.7; }
+.erd-workspace .rel-relationship-create { display: grid; gap: 18px; }
+.erd-workspace .rel-relationship-create h3,
+.erd-workspace .rel-relationship-existing h3 { margin: 0; font-size: 18px; font-weight: 650; letter-spacing: -.025em; }
+.erd-workspace .rel-relationship-field { display: grid; flex: 1; min-width: 0; gap: 9px; }
+.erd-workspace .rel-relationship-field > span { color: var(--workspace-text); font-size: 13px; font-weight: 600; }
+.erd-workspace .rel-relationship-field :is(input,select) { width: 100%; min-width: 0; min-height: 44px; margin: 0; padding: 10px 12px; border: 1px solid var(--workspace-line); border-radius: 7px; background: var(--workspace-bg); color: var(--workspace-text); font-size: 14px; }
+.erd-workspace .rel-relationship-field :is(input,select):focus { border-color: var(--workspace-accent); }
+.erd-workspace .rel-relationship-field select:disabled { opacity: .55; cursor: not-allowed; }
+.erd-workspace .rel-relationship-tables { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.erd-workspace .rel-relationship-side { min-width: 0; padding: 16px; border: 1px solid var(--workspace-line); border-radius: 9px; background: var(--workspace-soft); }
+.erd-workspace .rel-relationship-role { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; color: var(--workspace-accent); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+.erd-workspace .rel-relationship-role span { padding: 3px 6px; border: 1px solid var(--workspace-line); border-radius: 4px; font-size: 10px; letter-spacing: 0; }
+.erd-workspace .rel-relationship-side > p:last-child { margin-top: 12px; color: var(--workspace-muted); font-size: 12px; line-height: 1.6; }
+.erd-workspace .rel-relationship-side code { color: var(--workspace-text); overflow-wrap: anywhere; }
+.erd-workspace .rel-relationship-mappings h4 { font-size: 14px; font-weight: 650; margin-bottom: 6px; }
+.erd-workspace .rel-structure-help { color: var(--workspace-muted); font-size: 13px; line-height: 1.7; }
+.erd-workspace .rel-relationship-pair { display: grid; grid-template-columns: minmax(0,1fr) 28px minmax(0,1fr) auto; align-items: end; gap: 10px; margin-top: 16px; }
+.erd-workspace .rel-relationship-direction { display: grid; height: 44px; place-items: center; color: var(--workspace-accent); }
+.erd-workspace .rel-relationship-direction svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.erd-workspace .rel-pair-remove { width: 32px; height: 44px; color: var(--workspace-muted); font-size: 14px; }
+.erd-workspace .rel-pair-remove:hover { color: #e11d48; }
+.erd-workspace .rel-relationship-add-pair { display: inline-flex; align-items: center; gap: 7px; margin-top: 16px; padding: 8px 0; color: var(--workspace-accent); font-size: 13px; font-weight: 600; }
+.erd-workspace .rel-relationship-add-pair:hover { text-decoration: underline; text-underline-offset: 4px; }
+.erd-workspace .rel-relationship-rule { display: flex; gap: 12px; padding: 15px 17px; border: 1px solid var(--workspace-line); border-radius: 8px; color: var(--workspace-muted); }
+.erd-workspace .rel-relationship-rule > span { display: grid; flex: 0 0 19px; height: 19px; place-items: center; border: 1px solid var(--workspace-accent); border-radius: 50%; color: var(--workspace-accent); font-size: 12px; }
+.erd-workspace .rel-relationship-rule p { font-size: 13px; line-height: 1.7; }
+.erd-workspace .rel-relationship-footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 20px; border-top: 1px solid var(--workspace-line); }
+.erd-workspace .rel-relationship-footer p { max-width: 400px; color: var(--workspace-muted); font-size: 12px; line-height: 1.7; }
+.erd-workspace .board-action-primary { flex-shrink: 0; min-height: 44px; padding: 11px 18px; border: 1px solid transparent; border-radius: 7px; background: #6e74f7; color: #fff; font-size: 14px; font-weight: 600; }
+.erd-workspace .board-action-primary:hover { background: #5c63e6; }
+.erd-workspace .rel-relationship-existing { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--workspace-line); }
+.erd-workspace .rel-relationship-empty { padding: 22px 0 0; color: var(--workspace-muted); font-size: 14px; }
+html .erd-workspace .rel-structure-item { margin: 16px 0 0; padding: 20px; border-color: var(--workspace-line); background: var(--workspace-bg); }
+.erd-workspace .rel-existing-heading { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 7px; font-size: 15px; }
+.erd-workspace .rel-existing-heading strong span { padding-inline: 8px; color: var(--workspace-accent); }
+.erd-workspace .rel-existing-cardinality { align-self: flex-start; padding: 3px 7px; border: 1px solid var(--workspace-line); border-radius: 4px; color: var(--workspace-accent); font-size: 12px; }
+.erd-workspace .rel-existing-columns { display: grid; gap: 6px; margin: 12px 0 18px; color: var(--workspace-muted); font-size: 12px; }
+.erd-workspace .rel-existing-columns code { padding: 4px 7px; border-radius: 4px; background: var(--workspace-soft); color: var(--workspace-text); }
+.erd-workspace .rel-structure-row { align-items: end; gap: 10px; }
+html .erd-workspace .rel-structure-row button { min-height: 44px; padding: 10px 13px; border-color: var(--workspace-line); background: var(--workspace-panel); color: var(--workspace-text); font-size: 12px; }
+html .erd-workspace .rel-structure-row button.is-danger { border-color: #e11d4840; color: #e11d48; }
+@media (max-width: 1250px) {
+    .erd-workspace .board-toolbar-main { padding-inline: 16px; gap: 10px; }
+    .erd-workspace .board-toolbar-title p { max-width: 130px; }
+    .erd-workspace .board-dialect > span { display: none; }
+    .erd-workspace .board-dialect { padding-left: 10px; }
+}
+@media (max-width: 1050px) {
+    .erd-workspace .board-toolbar-left { visibility: visible; }
+    .erd-workspace .board-toolbar-title p { max-width: 160px; }
+}
+@media (max-width: 760px) {
+    .erd-workspace .board-toolbar-main { grid-template-columns: minmax(0,1fr) auto; gap: 12px; padding: 12px 14px; }
+    .erd-workspace .board-toolbar-left { grid-column: 1; gap: 12px; }
+    .erd-workspace .board-toolbar-actions { grid-column: 2; }
+    .erd-workspace .board-model-tabs { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+    .erd-workspace .board-toolbar-brand { flex: 1; }
+    .erd-workspace .board-toolbar-title p { max-width: 130px; }
+    .erd-workspace .board-toolbar--relational .board-toolbar-title { display: none; }
+    .erd-workspace .board-dialect select { max-width: 130px; width: auto; }
+    .erd-workspace .board-toolbar-workflow { padding-inline: 14px; }
+    .erd-workspace .board-create-form { flex-wrap: wrap; }
+    .erd-workspace .rel-modal { padding: 12px; }
+    html .erd-workspace .rel-modal-card { max-height: calc(100dvh - 24px); }
+    html .erd-workspace .rel-modal-card header { padding: 20px; }
+    .erd-workspace .rel-structure-body { padding: 20px; }
+    .erd-workspace .rel-relationship-tables { grid-template-columns: 1fr; gap: 12px; }
+    .erd-workspace .rel-relationship-side { padding: 16px; }
+    .erd-workspace .rel-relationship-pair { grid-template-columns: minmax(0,1fr) auto; gap: 8px; padding: 14px; border: 1px solid var(--workspace-line); border-radius: 8px; }
+    .erd-workspace .rel-relationship-pair > label { grid-column: 1; }
+    .erd-workspace .rel-relationship-direction { display: none; }
+    .erd-workspace .rel-pair-remove { grid-column: 2; grid-row: 1 / 3; }
+    .erd-workspace .rel-relationship-footer { flex-direction: column; align-items: stretch; gap: 16px; }
+    .erd-workspace .rel-structure-row { flex-direction: column; align-items: stretch; }
+    .erd-workspace .rel-existing-heading { flex-wrap: wrap; }
+    .erd-workspace .rel-existing-columns { overflow-wrap: anywhere; }
+}
+@media (max-width: 380px) {
+    .erd-workspace .board-toolbar--er .board-toolbar-title { display: none; }
+    .erd-workspace .board-toolbar-logo { width: 28px; height: 28px; }
+    .erd-workspace .board-dialect { padding-left: 0; border: 0; }
+    .erd-workspace .board-dialect select { max-width: 110px; }
+}
+/* ER relationship popover and less common column controls use the same palette. */
+html .erd-workspace .er-edge-editor { border-color: var(--workspace-line); background: var(--workspace-panel); color: var(--workspace-text); }
+html .erd-workspace :is(.er-ee-name,.er-ee-end,.er-ee-rename,.er-ee-roles) { border-color: var(--workspace-line); }
+html .erd-workspace .er-ee-roles { background: var(--workspace-soft); }
+html .erd-workspace :is(.er-ee-label,.er-ee-rename label,.er-ee-roles label,.er-ee-roles-title) { color: var(--workspace-muted); }
+html .erd-workspace :is(.er-ee-rename input,.er-ee-roles input) { border-color: var(--workspace-line); background: var(--workspace-bg); color: var(--workspace-text); }
+html .erd-workspace :is(.er-ee-opt,.er-ee-btn) { border-color: var(--workspace-line); background: var(--workspace-panel); color: var(--workspace-text); }
+html .erd-workspace :is(.er-ee-opt,.er-ee-btn):hover { border-color: var(--workspace-accent); background: var(--workspace-soft); color: var(--workspace-accent); }
+html .erd-workspace :is(.er-ee-roles button,.er-ee-diamond) { background: var(--workspace-soft); color: var(--workspace-accent); }
+html .erd-workspace :is(.rel-enum-editor,.rel-enum-value,.rel-enum-toggle,.rel-enum-add) { border-color: var(--workspace-line); background: var(--workspace-soft); color: var(--workspace-accent); }
+html .erd-workspace :is(.rel-enum-editor label,.rel-enum-toggle > small) { color: var(--workspace-accent); }
+html .erd-workspace.relational-board .flow-edge-label:not(.flow-edge-label-start):not(.flow-edge-label-end) { border-color: var(--workspace-line); background: var(--workspace-panel); color: var(--workspace-accent); }
+.erd-workspace .rel-cardinality-guide { padding: 16px 18px; border: 1px solid var(--workspace-line); border-radius: 8px; background: var(--workspace-soft); }
+.erd-workspace .rel-cardinality-guide summary { color: var(--workspace-accent); font-size: 14px; font-weight: 600; cursor: pointer; }
+.erd-workspace .rel-cardinality-guide p,
+.erd-workspace .rel-cardinality-guide ul { margin-top: 14px; color: var(--workspace-muted); font-size: 13px; line-height: 1.8; }
+.erd-workspace .rel-cardinality-guide ul { display: grid; gap: 10px; padding-left: 18px; list-style: disc; }
+.erd-workspace .rel-cardinality-guide strong { color: var(--workspace-text); font-weight: 600; }
+.erd-workspace .rel-cardinality-guide code { color: var(--workspace-text); overflow-wrap: anywhere; }
+/* Guided relationships keep the business questions separate from the technical review. */
+.erd-workspace .board-origin-status { display: flex; flex-shrink: 0; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 24px; border-bottom: 1px solid var(--workspace-line); background: var(--workspace-panel); color: var(--workspace-muted); font-size: 12px; line-height: 1.6; }
+.erd-workspace .board-origin-status strong { padding: 3px 8px; border: 1px solid var(--workspace-line); border-radius: 4px; background: var(--workspace-soft); color: var(--workspace-accent); font-size: 11px; font-weight: 600; }
+.erd-workspace .board-origin-status a { color: var(--workspace-accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.erd-workspace .rel-guide-step-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.erd-workspace .rel-guide-step-heading button { color: var(--workspace-accent); font-size: 13px; font-weight: 600; }
+.erd-workspace .rel-guide-rule-step,
+.erd-workspace .rel-guide-review-step,
+.erd-workspace .rel-guide-questions { display: grid; gap: 22px; }
+.erd-workspace .rel-guide-questions { padding-top: 22px; border-top: 1px solid var(--workspace-line); }
+.erd-workspace .rel-guide-questions .rel-relationship-field { grid-template-columns: minmax(0,1fr) minmax(180px,.55fr); align-items: center; gap: 20px; }
+.erd-workspace .rel-guide-questions .rel-relationship-field > span { font-size: 14px; font-weight: 400; line-height: 1.7; }
+.erd-workspace .rel-guide-questions strong { color: var(--workspace-accent); font-weight: 600; overflow-wrap: anywhere; }
+.erd-workspace .rel-guide-summary { padding: 20px; border: 1px solid var(--workspace-line); border-radius: 9px; background: var(--workspace-soft); }
+.erd-workspace .rel-guide-summary .board-dialog-kicker { display: block; margin-bottom: 10px; }
+.erd-workspace .rel-guide-summary p { color: var(--workspace-text); font-size: 16px; line-height: 1.8; }
+.erd-workspace .rel-guide-rule-step + .rel-guide-summary + .board-action-primary { justify-self: end; }
+.erd-workspace :is(.rel-guide-columns,.rel-guide-blueprint) { padding: 18px; border: 1px solid var(--workspace-line); border-radius: 8px; background: var(--workspace-bg); }
+.erd-workspace :is(.rel-guide-columns,.rel-guide-blueprint) summary { color: var(--workspace-accent); font-size: 14px; font-weight: 600; cursor: pointer; }
+.erd-workspace :is(.rel-guide-columns,.rel-guide-blueprint) > :not(summary) { margin-top: 16px; }
+.erd-workspace .rel-guide-junction { display: grid; gap: 16px; }
+.erd-workspace .rel-guide-column-pair { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--workspace-line); border-radius: 7px; }
+.erd-workspace .rel-guide-preview h4 { color: var(--workspace-text); font-size: 15px; font-weight: 650; margin-bottom: 12px; }
+.erd-workspace .rel-guide-preview ul { display: grid; gap: 10px; padding-left: 20px; color: var(--workspace-text); font-size: 14px; line-height: 1.75; list-style: disc; }
+.erd-workspace .rel-guide-preview .rel-structure-help { margin-top: 18px; }
+.erd-workspace :is(.rel-guide-error,.rel-guide-success) { padding: 12px 15px; border: 1px solid var(--workspace-line); border-radius: 7px; font-size: 14px; line-height: 1.7; }
+.erd-workspace .rel-guide-error { background: #e11d4810; color: #be123c; }
+.dark .erd-workspace .rel-guide-error { color: #fda4af; }
+.erd-workspace .rel-guide-success { background: var(--workspace-soft); color: var(--workspace-accent); }
+.erd-workspace .rel-guide-blueprint pre { max-height: 300px; padding: 16px; border: 1px solid var(--workspace-line); border-radius: 7px; background: var(--workspace-panel); font-size: 12px; }
+.erd-workspace .rel-guide-draft-warnings { display: grid; gap: 10px; padding-left: 18px; color: var(--workspace-muted); font-size: 13px; line-height: 1.7; list-style: disc; }
+.erd-workspace .rel-guide-origin { padding: 20px; border: 1px solid var(--workspace-line); border-radius: 9px; background: var(--workspace-soft); }
+.erd-workspace .rel-guide-origin strong { display: block; margin-bottom: 12px; font-size: 16px; }
+.erd-workspace .rel-guide-origin p { color: var(--workspace-muted); font-size: 14px; line-height: 1.8; }
+.erd-workspace .rel-guide-origin a { display: inline-block; margin-top: 16px; color: var(--workspace-accent); font-size: 14px; font-weight: 600; }
+.erd-workspace .rel-existing-explanation { display: grid; gap: 7px; color: var(--workspace-muted); font-size: 14px; line-height: 1.7; }
+.erd-workspace .rel-existing-explanation strong { color: var(--workspace-text); font-weight: 600; }
+.erd-workspace .rel-structure-item.is-focused { border-color: var(--workspace-accent); }
+.erd-workspace .flow-edge-label[role="button"] { cursor: pointer; }
+@media (max-width: 760px) {
+    .erd-workspace .board-origin-status { padding-inline: 14px; }
+    .erd-workspace .rel-guide-questions .rel-relationship-field { grid-template-columns: 1fr; gap: 9px; }
+    .erd-workspace .rel-guide-summary { padding: 16px; }
+    .erd-workspace .rel-guide-summary p { font-size: 15px; }
+    .erd-workspace .rel-guide-step-heading { flex-wrap: wrap; }
+}
+
+.erd-workspace .rel-guide-fields { display: grid; min-width: 0; gap: 18px; margin: 0; padding: 0; border: 0; }
+.erd-workspace .flow-edge-label[role="button"] { pointer-events: auto; z-index: 2; }
+html .erd-workspace.relational-board .flow-edge-label[role="button"]:not(.flow-edge-label-start):not(.flow-edge-label-end) { pointer-events: auto; }

@@ -455,8 +455,6 @@
 .er-import-example { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .er-import-example button { border: 1px solid #6366f1; border-radius: 7px; padding: 7px 10px; background: #eef2ff; color: #3730a3; font-weight: 700; cursor: pointer; }
 .er-import-example a { color: #4f46e5; font-weight: 700; text-decoration: underline; }
-.er-analysis-guide { padding: 7px 18px; border-top: 1px solid rgb(148 163 184 / 25%); font-size: 11px; line-height: 1.4; color: #cbd5e1; }
-.er-analysis-guide strong { color: #fff; }
 .dark .er-import-dialog { border-color: #334155; background: #0f172a; color: #e2e8f0; }
 .dark .er-import-heading button { border-color: #334155; background: #172033; color: #94a3b8; }
 .dark .er-import-heading button:hover { color: #f8fafc; }

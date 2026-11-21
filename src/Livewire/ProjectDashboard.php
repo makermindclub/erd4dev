@@ -14,7 +14,6 @@ use Makermind\Erd4dev\Models\Diagram;
 use Makermind\Erd4dev\Services\RelationalDiagramCreator;
 use Makermind\Erd4dev\Services\RelationalDiagramDriftAnalyzer;
 use Makermind\Erd4dev\Support\DatabaseDiagramImporter;
-use Makermind\Erd4dev\Support\ErDiagramImporter;
 use Makermind\Erd4dev\Support\JsonDiagramImporter;
 use Makermind\Erd4dev\Support\LaravelTableFilter;
 use Makermind\Erd4dev\Support\SqlDiagramImporter;
@@ -202,19 +201,6 @@ class ProjectDashboard extends Component
         ]);
 
         $this->redirectRoute($relational ? 'erd.boards.relational' : 'erd.boards.er', $diagram);
-    }
-
-    public function createAnalysisProject(): void
-    {
-        $diagram = Diagram::create([
-            'name' => 'ER to relational conversion examples',
-            'type' => Diagram::TYPE_ENTITY_RELATIONSHIP,
-            'data' => ErDiagramImporter::parse(
-                file_get_contents(__DIR__.'/../../resources/examples/er-conversion-cases.json'),
-            ),
-        ]);
-
-        $this->redirectRoute('erd.boards.er', $diagram, navigate: true);
     }
 
     public function createRelational(int $sourceDiagramId, RelationalDiagramCreator $copy): void
