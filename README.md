@@ -167,4 +167,4 @@ ERD4Dev was developed by the following students of the Technical Program in Info
 - Cauã Vitor Cabreira da Silva
 - Cleber Raniele Firmino da Silva Júnior
 
-The project was developed under the coordination and supervision of Professor Giovane Montine Moreira Gurgel at the **Laboratório de Pesquisa em Engenharia de Software e Automação (LAPEA)** — Research Laboratory in Software Engineering and Automation.
+The project was developed under the coordination and supervision of Professor Giovane Montine Moreira Gurgel.
