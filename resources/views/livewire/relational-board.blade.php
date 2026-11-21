@@ -1,11 +1,12 @@
-<main data-structure-editable="{{ $sourceDiagramId === null ? 'true' : 'false' }}" class="relational-board flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-100"
+<main data-structure-editable="{{ $sourceDiagramId === null ? 'true' : 'false' }}" class="erd-workspace relational-board flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-100"
 x-data="{
     dialect: @js($dialect),
     catalog: @js(\Makermind\Erd4dev\Support\DataTypeCatalog::forJs()),
     typeKind(type) { return this.catalog[this.dialect].kinds[type] ?? null; },
     shortcutsCleanup: null,
     connectionsCleanup: null,
-    destroy() { this.shortcutsCleanup?.destroy(); this.connectionsCleanup?.(); },
+    relationshipHelpCleanup: null,
+    destroy() { this.shortcutsCleanup?.destroy(); this.connectionsCleanup?.(); this.relationshipHelpCleanup?.(); },
     guideOpen: false,
     notice: '',
     noticeKind: 'success',
@@ -32,7 +33,7 @@ x-data="{
         { label: 'Other', types: ['boolean', 'uuid', 'json', 'xml', 'enum', 'custom'] },
     ],
 }"
-    x-init="shortcutsCleanup = window.installBoardShortcuts($el, $wire, 'relational'); $nextTick(() => connectionsCleanup = window.installRelationalConnections($el.querySelector('.flow-container')))"
+    x-init="shortcutsCleanup = window.installBoardShortcuts($el, $wire, 'relational'); $nextTick(() => { const canvas = $el.querySelector('.flow-container'); connectionsCleanup = window.installRelationalConnections(canvas); relationshipHelpCleanup = window.installRelationshipHelp(canvas, $wire); })"
     @relational-saved.window="showNotice('Changes saved to the relational model only.')"
     @relational-regenerated.window="showNotice('Relational model regenerated from ER.')"
     @relational-edit-rejected.window="showNotice($event.detail.message, 'warning')"
@@ -42,6 +43,14 @@ x-data="{
         :source-diagram-name="$sourceDiagramName" :tables-count="count($tables)"
         :columns-count="collect($tables)->sum(fn (array $table) => count($table['columns']))"
         :foreign-keys-count="count($foreignKeys)" />
+
+    <div class="board-origin-status">
+        @if ($sourceDiagramId)
+            <strong>Linked to ER</strong><span>Structure comes from {{ $sourceDiagramName }}.</span><a wire:navigate href="{{ route('erd.boards.er', $sourceDiagramId) }}">Edit in ER</a>
+        @else
+            <strong>Independent model</strong><span>Edit the imported structure here. The source database stays unchanged.</span>
+        @endif
+    </div>
 
     @if ($isOutdated)
         {{-- The ER source changed after generation. Show drift and reuse the existing regeneration action and confirmation. --}}
@@ -95,9 +104,7 @@ x-data="{
         <button type="button" @click="guideOpen = false" aria-label="Close guide">✕</button>
     </div>
 
-    @if ($sourceDiagramId === null)
-        @include('erd::livewire.partials.relational-structure-editor')
-    @endif
+    @include('erd::livewire.partials.relational-structure-editor')
 
     <div x-show="$wire.showDraftNotice" x-cloak x-effect="if ($wire.showDraftNotice) $nextTick(() => $refs.draftClose.focus())" class="rel-modal rel-draft-overlay" role="dialog" aria-modal="true" aria-labelledby="draft-title"
         @click.self="$wire.showDraftNotice = false" @keydown.escape.window="$wire.showDraftNotice = false">
@@ -172,19 +179,6 @@ x-data="{
     <p x-text="dialectNotice"></p>
     </div>
 
-
-    @if ($warnings)
-        <aside class="z-10 border-b border-amber-400/15 bg-amber-400/5 px-5 py-2 text-xs text-amber-200">
-            <details>
-                <summary class="cursor-pointer font-medium">{{ count($warnings) }} decisions require manual review</summary>
-                <ul class="mt-2 space-y-1 pl-5 text-amber-100/75">
-                    @foreach ($warnings as $warning)
-                        <li wire:key="warning-{{ md5($warning) }}" class="list-disc">{{ $warning }}</li>
-                    @endforeach
-                </ul>
-            </details>
-        </aside>
-    @endif
 
     <section class="relative min-h-0 flex-1 overflow-hidden">
         @if ($tables)

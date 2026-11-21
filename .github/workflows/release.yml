@@ -26,6 +26,11 @@ jobs:
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction --no-progress
       - run: composer test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test guided relationship rules
+        run: node --test tests/js/*.test.mjs
       - run: python3 -m unittest discover -s .github/scripts -p 'test_*.py'
       - name: Check distributed assets
         run: test -s dist/erd.js && test -s dist/erd.css

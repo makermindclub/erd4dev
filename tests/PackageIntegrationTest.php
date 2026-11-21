@@ -113,7 +113,12 @@ class PackageIntegrationTest extends TestCase
         $this->get('/erd')->assertOk()
             ->assertSee('/erd/assets/erd.css', false)
             ->assertSee('/erd/assets/erd.js', false)
-            ->assertDontSee('@vite', false);
+            ->assertDontSee('@vite', false)
+            ->assertDontSee('Create conversion example project')
+            ->assertDontSee('Conversion matrix');
+        $this->get('/erd/assets/examples/er-conversion-cases.json')->assertNotFound();
+        $this->get('/erd/assets/examples/marketplace-er.json')->assertOk();
+        $this->get('/erd/assets/examples/clinic-er.json')->assertOk();
         $this->get('/erd/schema')->assertOk()->assertSee('flow-container');
         $this->assertTrue(config('livewire.inject_assets'));
         $this->assertTrue(Schema::hasTable('erd_diagrams'));
@@ -200,7 +205,7 @@ class PackageIntegrationTest extends TestCase
     public function test_json_import_still_accepts_er_diagrams(): void
     {
         Gate::define('erd.access', fn ($user = null) => true);
-        $json = file_get_contents(__DIR__.'/../resources/examples/er-conversion-cases.json');
+        $json = file_get_contents(__DIR__.'/../resources/examples/marketplace-er.json');
 
         Livewire::test(ProjectDashboard::class)
             ->set('importProjectName', 'Imported ER')
@@ -209,7 +214,7 @@ class PackageIntegrationTest extends TestCase
             ->assertRedirect(route('erd.boards.er', Diagram::sole()));
 
         $this->assertSame(Diagram::TYPE_ENTITY_RELATIONSHIP, Diagram::sole()->type);
-        $this->assertCount(40, Diagram::sole()->data['relations']);
+        $this->assertCount(6, Diagram::sole()->data['relations']);
     }
 
     public function test_livewire_updates_recheck_access_after_permission_is_revoked(): void
@@ -297,7 +302,9 @@ class PackageIntegrationTest extends TestCase
             $this->assertFileExists($migration);
             $this->assertFileExists($assets.'/erd.js');
             $this->assertFileExists($assets.'/erd.css');
-            $this->assertFileExists($assets.'/examples/er-conversion-cases.json');
+            $this->assertFileDoesNotExist($assets.'/examples/er-conversion-cases.json');
+            $this->assertFileExists($assets.'/examples/marketplace-er.json');
+            $this->assertFileExists($assets.'/examples/clinic-er.json');
             Schema::dropIfExists('erd_diagrams');
             $this->artisan('migrate', ['--path' => $migration, '--realpath' => true])
                 ->assertSuccessful();
@@ -315,4 +322,162 @@ class PackageIntegrationTest extends TestCase
         $this->artisan('view:cache')->assertSuccessful();
         $this->artisan('view:clear')->assertSuccessful();
     }
+    private function guidedRelationshipFixture(array $changes = []): array
+    {
+        $data = (new SqlDiagramImporter)->parse('CREATE TABLE customers (id INTEGER PRIMARY KEY, email VARCHAR(80)); CREATE TABLE orders (id INTEGER PRIMARY KEY, note VARCHAR(80));', 'sqlite')['relational'];
+        $customer = collect($data['tables'])->firstWhere('name', 'customers');
+        $order = collect($data['tables'])->firstWhere('name', 'orders');
+        $plan = array_replace([
+            'name' => 'orders_customer', 'fromTable' => $order['id'], 'toTable' => $customer['id'],
+            'fromColumns' => [''], 'toColumns' => [$customer['columns'][0]['id']],
+            'newColumnNames' => ['customer_id'], 'kind' => 'many-to-one', 'optional' => false,
+            'junctionName' => '',
+        ], $changes);
+        $diagram = Diagram::create(['name' => 'Guided relationship', 'type' => Diagram::TYPE_RELATIONAL, 'data' => $data]);
+
+        return [$diagram, $plan];
+    }
+
+    public function test_guided_relationship_creates_required_fk_and_blueprint_from_the_same_plan(): void
+    {
+        [$diagram, $plan] = $this->guidedRelationshipFixture();
+        $board = Livewire::test(RelationalBoard::class, ['diagram' => $diagram]);
+        $before = $diagram->fresh()->data;
+        $preview = $board->instance()->previewGuidedRelationship($plan);
+        $this->assertTrue($preview['ok']);
+        $this->assertStringContainsString('foreign:customers.id', $preview['yaml']);
+        $this->assertSame($before, $diagram->fresh()->data, 'Preview must not save the proposed changes.');
+
+        $board->call('createGuidedRelationship', $plan)->assertSet('foreignKeys.0.cardinality', 'N:1');
+        $data = $diagram->fresh()->data;
+        $order = collect($data['tables'])->firstWhere('name', 'orders');
+        $column = collect($order['columns'])->firstWhere('name', 'customer_id');
+        $this->assertFalse($column['nullable']);
+        $this->assertStringContainsString('FK', $column['key']);
+        $draft = (new BlueprintDraftGenerator)->generate($data);
+        $this->assertSame($preview['yaml'], $draft['yaml']);
+    }
+
+    public function test_guided_one_to_one_sets_unique_and_optional_reference(): void
+    {
+        [$diagram, $plan] = $this->guidedRelationshipFixture(['kind' => 'one-to-one', 'optional' => true]);
+        Livewire::test(RelationalBoard::class, ['diagram' => $diagram])
+            ->call('createGuidedRelationship', $plan)
+            ->assertSet('foreignKeys.0.cardinality', '1:1')
+            ->assertSet('foreignKeys.0.targetCard', 'cf-zero-one');
+        $data = $diagram->fresh()->data;
+        $table = collect($data['tables'])->firstWhere('name', 'orders');
+        $this->assertContains(['customer_id'], $table['uniqueKeys']);
+        $this->assertTrue(collect($table['columns'])->firstWhere('name', 'customer_id')['nullable']);
+        $draft = (new BlueprintDraftGenerator)->generate($data);
+        $this->assertStringContainsString('nullable', $draft['yaml']);
+        $this->assertStringContainsString('unique: customer_id', $draft['yaml']);
+    }
+
+    public function test_guided_many_to_many_creates_a_junction_with_two_foreign_keys(): void
+    {
+        [$diagram, $plan] = $this->guidedRelationshipFixture();
+        $order = collect($diagram->data['tables'])->firstWhere('name', 'orders');
+        $plan = array_replace($plan, ['kind' => 'many-to-many', 'fromColumns' => [$order['columns'][0]['id']], 'junctionName' => 'customer_orders']);
+        Livewire::test(RelationalBoard::class, ['diagram' => $diagram])->call('createGuidedRelationship', $plan);
+        $data = $diagram->fresh()->data;
+        $junction = collect($data['tables'])->firstWhere('name', 'customer_orders');
+        $this->assertNotNull($junction);
+        $this->assertCount(2, $junction['columns']);
+        $this->assertCount(2, $junction['primaryKey']);
+        $this->assertCount(2, $data['foreignKeys']);
+        foreach ($data['foreignKeys'] as $key) {
+            $this->assertSame($junction['id'], $key['fromTable']);
+            $this->assertSame('N:1', $key['cardinality']);
+        }
+        $draft = (new BlueprintDraftGenerator)->generate($data);
+        $this->assertStringContainsString('foreign:customers.id', $draft['yaml']);
+        $this->assertStringContainsString('foreign:orders.id', $draft['yaml']);
+    }
+
+    public function test_guided_invalid_plan_preserves_the_model_and_existing_primary_key(): void
+    {
+        [$diagram, $plan] = $this->guidedRelationshipFixture();
+        $order = collect($diagram->data['tables'])->firstWhere('name', 'orders');
+        $plan = array_replace($plan, ['fromColumns' => [$order['columns'][0]['id']], 'kind' => 'one-to-one', 'optional' => true]);
+        $before = $diagram->data;
+        Livewire::test(RelationalBoard::class, ['diagram' => $diagram])
+            ->call('createGuidedRelationship', $plan)->assertDispatched('relational-edit-rejected');
+        $this->assertSame($before, $diagram->fresh()->data);
+        $preview = Livewire::test(RelationalBoard::class, ['diagram' => $diagram])->instance()->previewGuidedRelationship($plan);
+        $this->assertFalse($preview['ok']);
+        $this->assertStringContainsString('primary', strtolower($preview['message']));
+    }
+
+    public function test_linked_board_can_explain_relationships_but_cannot_apply_guided_edits(): void
+    {
+        [$diagram, $plan] = $this->guidedRelationshipFixture();
+        $source = Diagram::create(['name' => 'Source ER', 'type' => Diagram::TYPE_ENTITY_RELATIONSHIP, 'data' => []]);
+        $diagram->update(['source_diagram_id' => $source->id]);
+        Livewire::test(RelationalBoard::class, ['diagram' => $diagram])
+            ->call('openStructureEditor')->assertSet('showStructureEditor', true)
+            ->call('createGuidedRelationship', $plan)->assertForbidden();
+    }
+
+    public function test_guided_composite_reference_preserves_pairing_and_unique_constraint(): void
+    {
+        $data = (new SqlDiagramImporter)->parse('CREATE TABLE accounts (tenant_id INTEGER NOT NULL, code VARCHAR(20) NOT NULL, PRIMARY KEY (tenant_id, code)); CREATE TABLE orders (id INTEGER PRIMARY KEY);', 'sqlite')['relational'];
+        $target = collect($data['tables'])->firstWhere('name', 'accounts');
+        $source = collect($data['tables'])->firstWhere('name', 'orders');
+        $diagram = Diagram::create(['name' => 'Composite', 'type' => Diagram::TYPE_RELATIONAL, 'data' => $data]);
+        $plan = ['name' => 'account_order', 'fromTable' => $source['id'], 'toTable' => $target['id'],
+            'fromColumns' => ['', ''], 'toColumns' => array_column($target['columns'], 'id'),
+            'newColumnNames' => ['account_tenant', 'account_code'], 'kind' => 'one-to-one', 'optional' => false, 'junctionName' => ''];
+        Livewire::test(RelationalBoard::class, ['diagram' => $diagram])->call('createGuidedRelationship', $plan);
+        $saved = $diagram->fresh()->data;
+        $this->assertCount(2, $saved['foreignKeys']);
+        $this->assertSame(['tenant_id', 'code'], array_column($saved['foreignKeys'], 'toColumn'));
+        $this->assertSame(['1:1', '1:1'], array_column($saved['foreignKeys'], 'cardinality'));
+        $order = collect($saved['tables'])->firstWhere('name', 'orders');
+        $this->assertContains(['account_tenant', 'account_code'], $order['uniqueKeys']);
+        $column = collect($order['columns'])->firstWhere('name', 'account_code');
+        $this->assertSame(20, $column['length']);
+        $this->assertFalse($column['nullable']);
+        $draft = (new BlueprintDraftGenerator)->generate($saved);
+        $parsed = \Symfony\Component\Yaml\Yaml::parse($draft['yaml']);
+        $this->assertContains(['unique' => 'account_tenant, account_code'], $parsed['models']['Order']['indexes']);
+        $this->assertStringContainsString('Composite FK', implode(' ', $draft['warnings']));
+    }
+
+    public function test_guided_many_to_many_supports_self_references_without_column_collisions(): void
+    {
+        [$diagram, $plan] = $this->guidedRelationshipFixture();
+        $source = collect($diagram->data['tables'])->firstWhere('name', 'customers');
+        $key = [$source['columns'][0]['id']];
+        $plan = array_replace($plan, ['fromTable' => $source['id'], 'fromColumns' => $key, 'toColumns' => $key,
+            'kind' => 'many-to-many', 'junctionName' => 'customer_links']);
+        Livewire::test(RelationalBoard::class, ['diagram' => $diagram])->call('createGuidedRelationship', $plan);
+        $junction = collect($diagram->fresh()->data['tables'])->firstWhere('name', 'customer_links');
+        $this->assertSame(['left_customers_id', 'right_customers_id'], array_column($junction['columns'], 'name'));
+        $this->assertSame(['left_customers_id', 'right_customers_id'], $junction['primaryKey']);
+    }
+
+    public function test_guided_many_side_does_not_silently_remove_existing_unique_keys(): void
+    {
+        [$diagram, $plan] = $this->guidedRelationshipFixture();
+        $source = collect($diagram->data['tables'])->firstWhere('name', 'orders');
+        $plan['fromColumns'] = [$source['columns'][0]['id']];
+        $before = $diagram->data;
+        Livewire::test(RelationalBoard::class, ['diagram' => $diagram])
+            ->call('createGuidedRelationship', $plan)->assertDispatched('relational-edit-rejected');
+        $this->assertSame($before, $diagram->fresh()->data);
+    }
+
+    public function test_guided_invalid_or_incomplete_keys_do_not_create_columns_or_tables(): void
+    {
+        [$diagram, $plan] = $this->guidedRelationshipFixture();
+        $target = collect($diagram->data['tables'])->firstWhere('name', 'customers');
+        $before = $diagram->data;
+        $board = Livewire::test(RelationalBoard::class, ['diagram' => $diagram]);
+        foreach ([['kind' => 'invalid'], ['toTable' => 'missing'], ['toColumns' => [$target['columns'][1]['id']]], ['newColumnNames' => ['id']]] as $change) {
+            $board->call('createGuidedRelationship', array_replace($plan, $change))->assertDispatched('relational-edit-rejected');
+            $this->assertSame($before, $diagram->fresh()->data);
+        }
+    }
+
 }

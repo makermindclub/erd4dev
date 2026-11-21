@@ -21,7 +21,7 @@
     <div class="board-toolbar-main">
         <div class="board-toolbar-left">
         <div class="board-toolbar-brand">
-            <span class="board-toolbar-logo" aria-hidden="true">{{ $isEr ? 'ER' : 'RM' }}</span>
+            <a class="board-toolbar-logo" href="{{ route('erd.dashboard') }}" wire:navigate aria-label="Back to projects" title="Back to projects"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="12" y="2" width="12" height="10" rx="2"/><path d="M18 12v8M8 20h20M8 20v4M28 20v4"/><rect x="2" y="24" width="12" height="10" rx="2"/><rect x="22" y="24" width="12" height="10" rx="2"/></svg></a>
             <div class="board-toolbar-title">
                 <h1>{{ $isEr ? 'ER editor' : 'Relational model' }}</h1>
                 <p title="{{ $diagramName }}">{{ $diagramName }}</p>
@@ -33,7 +33,7 @@
                     <span>Database</span>
                     <select x-model="dialect" @change="$wire.setDialect($event.target.value)" aria-label="Target database">
                         @foreach (\Makermind\Erd4dev\Support\DataTypeCatalog::DIALECTS as $key => $info)
-                            <option value="{{ $key }}" @selected($dialect === $key)>{{ $info['label'] }}</option>
+                            <option wire:key="board-dialect-{{ $key }}" value="{{ $key }}" @selected($dialect === $key)>{{ $info['label'] }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -70,9 +70,9 @@
             @if (! $isEr && ! $sourceDiagramId)
                 <button type="button" class="board-toolbar-button" wire:click="openTableCreator">New table</button>
             @endif
-            @if (! $isEr && ! $sourceDiagramId)
+            @unless ($isEr)
                 <button type="button" class="board-toolbar-button" wire:click="openStructureEditor">Relationships</button>
-            @endif
+            @endunless
             {{-- Both boards use this save button and display confirmation through their own saved event. --}}
             <button type="button" data-board-save class="board-toolbar-button board-toolbar-save" title="Save (Ctrl+S / Cmd+S)" aria-keyshortcuts="Control+s Meta+s" wire:click="save" wire:loading.attr="disabled" wire:target="save">
                 <span wire:loading.remove wire:target="save">Save</span>
@@ -86,14 +86,16 @@
                             <strong>{{ $diagramName }}</strong>
                             <span>{{ $entitiesCount }} entities · {{ $relationsCount }} relationships</span>
                         @else
-                            <strong>{{ $sourceDiagramName }}</strong>
+                            <strong>{{ $sourceDiagramName ?? $diagramName }}</strong>
                             <span>{{ $tablesCount }} tables · {{ $columnsCount }} columns · {{ $foreignKeysCount }} FKs</span>
                         @endif
                     </div>
                     @if (! $isEr && ! $sourceDiagramId)
                         <button type="button" class="board-menu-compact" wire:click="openTableCreator" @click="$el.closest('details').open = false">New table</button>
-                        <button type="button" class="board-menu-compact" wire:click="openStructureEditor" @click="$el.closest('details').open = false">Relationships</button>
                     @endif
+                    @unless ($isEr)
+                        <button type="button" class="board-menu-compact" wire:click="openStructureEditor" @click="$el.closest('details').open = false">Relationships</button>
+                    @endunless
                     <button type="button" class="board-menu-compact" wire:click="organizeBoard" @click="$el.closest('details').open = false">Arrange</button>
                     <button type="button" class="board-menu-save" wire:click="save" @click="$el.closest('details').open = false">Save</button>
                     @unless ($isEr)
@@ -106,8 +108,7 @@
                         <button type="button" wire:click="generateBlueprintDraft" wire:loading.attr="disabled" wire:target="generateBlueprintDraft" @click="$el.closest('details').open = false">Generate Blueprint draft</button>
                     @endunless
                     <div class="board-menu-label">Export image</div>
-                    <button type="button" data-export-name="{{ $diagramName }}" @click="window.exportBoardImage($el, 'png'); $el.closest('details').open = false" title="High-resolution PNG for printing">Download high-resolution PNG</button>
-                    <button type="button" data-export-name="{{ $diagramName }}" @click="window.exportBoardImage($el, 'jpg'); $el.closest('details').open = false">Download JPG</button>
+                    <button type="button" data-export-name="{{ $diagramName }}" @click="window.exportBoardImage($el, 'png'); $el.closest('details').open = false">Download PNG</button>
                     <button type="button" @click="guideOpen = !guideOpen; $el.closest('details').open = false">Model guide</button>
                     @if (! $isEr && $hasDraftNotice)
                         <button type="button" wire:click="$set('showDraftNotice', true)" @click="$el.closest('details').open = false">Last draft</button>
